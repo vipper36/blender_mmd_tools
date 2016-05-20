@@ -539,10 +539,10 @@
           </ThemeSpaceGeneric>
         </space>
         <space_list>
-          <ThemeSpaceListGeneric list="#666666"
+          <ThemeSpaceListGeneric list="#414141"
                                  list_title="#000000"
                                  list_text="#000000"
-                                 list_text_hi="#ffffff">
+                                 list_text_hi="#f06969">
           </ThemeSpaceListGeneric>
         </space_list>
       </ThemeDopeSheet>
