@@ -157,7 +157,7 @@ def mmd_tools_scene_init():
 	camera_look_at.up_axis = 'UP_Y'
 	camera_look_at.track_axis = 'TRACK_NEGATIVE_Z'
 
-	# 30 degree short-side FOV to focal length
+	# set 30 degree short-side FOV
 	# TODO: not good for portrait
 	camera.data.sensor_fit = 'VERTICAL'
 	camera.data.lens_unit = 'FOV'
