@@ -313,10 +313,10 @@
                               header_text_hi="#ffffff"
                               button="#ffffff80"
                               button_title="#000000"
-                              button_text="#000000"
+                              button_text="#ffffff"
                               button_text_hi="#ffffff"
-                              tab_active="#a1cfff"
-                              tab_inactive="#ffffff"
+                              tab_active="#3c3c3c"
+                              tab_inactive="#582958"
                               tab_back="#ffffff80"
                               tab_outline="#c5c5c5">
             <gradients>
@@ -373,10 +373,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -413,10 +413,10 @@
                              header_text_hi="#ffffff"
                              button="#ffffffff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -465,10 +465,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -523,10 +523,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -598,10 +598,10 @@
                              header_text_hi="#ffffff"
                              button="#72727280"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -646,10 +646,10 @@
                              header_text_hi="#ffffff"
                              button="#72727280"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -675,10 +675,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#ffffff"
-                             button_text="#d4d4d4"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -714,10 +714,10 @@
                              header_text_hi="#ffffff"
                              button="#ffffffff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -746,10 +746,10 @@
                              header_text_hi="#ffffff"
                              button="#ffffffff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -801,10 +801,10 @@
                              header_text_hi="#ffffff"
                              button="#ffffff80"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -837,10 +837,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -867,10 +867,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#b0d2ff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -905,10 +905,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -934,10 +934,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
@@ -968,10 +968,10 @@
                              header_text_hi="#ffffff"
                              button="#727272ff"
                              button_title="#000000"
-                             button_text="#000000"
+                             button_text="#ffffff"
                              button_text_hi="#ffffff"
-                             tab_active="#a1cfff"
-                             tab_inactive="#ffffff"
+                             tab_active="#3c3c3c"
+                             tab_inactive="#582958"
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
