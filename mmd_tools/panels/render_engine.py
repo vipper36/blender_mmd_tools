@@ -98,6 +98,7 @@ def mmd_tools_scene_init():
 	bpy.context.space_data.lock_camera = True
 	if bpy.context.space_data.region_3d.view_perspective != "CAMERA":
 		bpy.ops.view3d.viewnumpad(type='CAMERA', align_active=False)
+	bpy.context.space_data.region_3d.view_camera_zoom = 1
 
 	# disable color management (scene side)
 	active_scene.display_settings.display_device = 'None'
