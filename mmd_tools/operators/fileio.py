@@ -75,7 +75,7 @@ class ImportPmx(Operator, ImportHelper):
         default={'MESH', 'ARMATURE', 'PHYSICS', 'DISPLAY', 'MORPHS',},
         update=_update_types,
         )
-    scale = bpy.props.FloatProperty(name='Scale', default=0.2)
+    scale = bpy.props.FloatProperty(name='Scale', default=1.0)
     renameBones = bpy.props.BoolProperty(name='Rename bones', default=True)
     use_mipmap = bpy.props.BoolProperty(name='use MIP maps for UV textures', default=True)
     sph_blend_factor = bpy.props.FloatProperty(name='influence of .sph textures', default=1.0)
@@ -127,7 +127,7 @@ class ImportVmd(Operator, ImportHelper):
     filename_ext = '.vmd'
     filter_glob = bpy.props.StringProperty(default='*.vmd', options={'HIDDEN'})
 
-    scale = bpy.props.FloatProperty(name='Scale', default=0.2)
+    scale = bpy.props.FloatProperty(name='Scale', default=1.0)
     margin = bpy.props.IntProperty(name='Margin', default=5, min=0)
     update_scene_settings = bpy.props.BoolProperty(name='Update scene settings', default=True)
 

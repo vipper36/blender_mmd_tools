@@ -59,7 +59,7 @@ class CreateMMDModelRoot(Operator):
 
     name_j = bpy.props.StringProperty(name='Name', default='New MMD Model')
     name_e = bpy.props.StringProperty(name='Name(Eng)', default='New MMD Model')
-    scale = bpy.props.FloatProperty(name='Scale', default=0.2)
+    scale = bpy.props.FloatProperty(name='Scale', default=1.0)
 
     def execute(self, context):
         rig = mmd_model.Model.create(self.name_j, self.name_e, self.scale)
