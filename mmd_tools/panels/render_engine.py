@@ -163,6 +163,8 @@ def mmd_tools_scene_init():
 	camera.data.lens_unit = 'FOV'
 	camera.data.angle = 0.523599 # deg2rad(30)
 
+	camera.data.clip_end = 1000
+
 def mmd_tools_panel_init_menu_draw(self, context):
 	self.layout.operator("mmd_tools.init_scene")
 
