@@ -96,7 +96,8 @@ def mmd_tools_scene_init():
 
 	# Lock Camera to View like MMD
 	bpy.context.space_data.lock_camera = True
-	bpy.ops.view3d.viewnumpad(type='CAMERA', align_active=False)
+	if bpy.context.space_data.region_3d.view_perspective != "CAMERA":
+		bpy.ops.view3d.viewnumpad(type='CAMERA', align_active=False)
 
 	# disable color management (scene side)
 	active_scene.display_settings.display_device = 'None'
