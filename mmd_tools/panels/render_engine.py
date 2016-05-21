@@ -128,10 +128,7 @@ def mmd_tools_scene_init():
 	tgt = bpy.data.objects.new( "Cam_Target", None )
 	active_scene.objects.link( tgt )
 
-	def mmd_bug_loc_y_approx(y): # XXX: should do REing
-		return -0.07 - y * -0.71
-
-	tgt.location = (0, 0, mmd_bug_loc_y_approx(10))
+	tgt.location = (0, 0, 10)
 
 	tgt.empty_draw_size = 1
 	tgt.empty_draw_type = 'CIRCLE'
@@ -150,7 +147,7 @@ def mmd_tools_scene_init():
 		camera = bpy.data.objects.new("Camera", camera_in)
 		active_scene.objects.link(camera)
 
-	camera.location = (0, -45, mmd_bug_loc_y_approx(10))
+	camera.location = (0, -45, 10)
 
 	camera_look_at = camera.constraints.new(type='TRACK_TO')
 	camera_look_at.target = tgt
