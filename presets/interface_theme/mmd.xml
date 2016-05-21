@@ -421,7 +421,7 @@
                              tab_outline="#c5c5c5">
             <panelcolors>
               <ThemePanelColors header="#f0f0f0ff"
-                                back="#ffffffff"
+                                back="#4c4c4cff"
                                 show_header="TRUE"
                                 show_back="TRUE">
               </ThemePanelColors>
@@ -722,9 +722,9 @@
                              tab_outline="#c5c5c5">
             <panelcolors>
               <ThemePanelColors header="#ffffff19"
-                                back="#72727280"
+                                back="#4c4c4cff"
                                 show_header="FALSE"
-                                show_back="FALSE">
+                                show_back="TRUE">
               </ThemePanelColors>
             </panelcolors>
           </ThemeSpaceGeneric>
@@ -828,7 +828,7 @@
     <logic_editor>
       <ThemeLogicEditor>
         <space>
-          <ThemeSpaceGeneric back="#ffffff"
+          <ThemeSpaceGeneric back="#4c4c4c"
                              title="#000000"
                              text="#000000"
                              text_hi="#ffffff"
@@ -925,11 +925,11 @@
     <user_preferences>
       <ThemeUserPreferences>
         <space>
-          <ThemeSpaceGeneric back="#ffffff"
+          <ThemeSpaceGeneric back="#4c4c4c"
                              title="#000000"
-                             text="#000000"
+                             text="#ffa600"
                              text_hi="#ffffff"
-                             header="#ffffff"
+                             header="#f5f5f5"
                              header_text="#000000"
                              header_text_hi="#ffffff"
                              button="#727272ff"
@@ -941,10 +941,10 @@
                              tab_back="#ffffff80"
                              tab_outline="#c5c5c5">
             <panelcolors>
-              <ThemePanelColors header="#ffffff19"
-                                back="#72727280"
+              <ThemePanelColors header="#ffffff18"
+                                back="#4c4c4cff"
                                 show_header="FALSE"
-                                show_back="TRUE">
+                                show_back="FALSE">
               </ThemePanelColors>
             </panelcolors>
           </ThemeSpaceGeneric>
