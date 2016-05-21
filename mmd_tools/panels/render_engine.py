@@ -94,12 +94,6 @@ def mmd_tools_scene_init():
 	bpy.context.space_data.show_axis_y = True
 	bpy.context.space_data.show_axis_z = True
 
-	# Lock Camera to View like MMD
-	bpy.context.space_data.lock_camera = True
-	if bpy.context.space_data.region_3d.view_perspective != "CAMERA":
-		bpy.ops.view3d.viewnumpad(type='CAMERA', align_active=False)
-	bpy.context.space_data.region_3d.view_camera_zoom = 1
-
 	# disable color management (scene side)
 	active_scene.display_settings.display_device = 'None'
 	active_scene.view_settings.view_transform = 'Default'
@@ -166,17 +160,42 @@ def mmd_tools_scene_init():
 
 	camera.data.passepartout_alpha = 1 # just for style
 
-def mmd_tools_panel_init_menu_draw(self, context):
-	self.layout.operator("mmd_tools.init_scene")
+	# Lock Camera to View like MMD
+	bpy.context.space_data.lock_camera = True
+	if bpy.context.space_data.region_3d.view_perspective != "CAMERA":
+		bpy.ops.view3d.viewnumpad(type='CAMERA', align_active=False)
+	bpy.context.space_data.region_3d.view_camera_zoom = 1
 
-class MMDToolsInitScene(bpy.types.Operator):
-	"""Set MMD default parameter to current Scene"""
-	bl_idname = "mmd_tools.init_scene"
-	bl_label = "Init MMD Scene"
+def mmd_tools_scene_create():
+	bpy.ops.scene.new(type="NEW")
+	scene = bpy.context.scene
+	scene.name = "MMD Scene"
+	scene.render.engine = "mmd_tools_engine"
+	mmd_tools_scene_init()
+
+def mmd_tools_panel_init_menu_draw(self, context):
+#	self.layout.operator("mmd_tools.init_scene")
+	self.layout.operator("mmd_tools.create_scene")
+
+#class MMDToolsInitScene(bpy.types.Operator):
+#	"""Set MMD default parameter to current Scene"""
+#	bl_idname = "mmd_tools.init_scene"
+#	bl_label = "Init MMD Scene"
+#	bl_options = {'REGISTER'}
+#
+#	def execute(self, context):
+#		mmd_tools_scene_init()
+#
+#		return {'FINISHED'}
+
+class MMDToolsCreateScene(bpy.types.Operator):
+	"""Create a scene with MMD default params"""
+	bl_idname = "mmd_tools.create_scene"
+	bl_label = "Create MMD Scene"
 	bl_options = {'REGISTER'}
 
 	def execute(self, context):
-		mmd_tools_scene_init()
+		mmd_tools_scene_create()
 
 		return {'FINISHED'}
 
@@ -188,13 +207,15 @@ def register():
 			panel = getattr(bpy.types, cp)
 			panel.COMPAT_ENGINES.add('mmd_tools_engine')
 
-	bpy.utils.register_class(MMDToolsInitScene)
+#	bpy.utils.register_class(MMDToolsInitScene)
+	bpy.utils.register_class(MMDToolsCreateScene)
 	bpy.types.OBJECT_PT_mmd_tools_object.append(mmd_tools_panel_init_menu_draw)
 
 def unregister():
 
 	bpy.types.OBJECT_PT_mmd_tools_object.remove(mmd_tools_panel_init_menu_draw)
-	bpy.utils.unregister_class(MMDToolsInitScene)
+	bpy.utils.unregister_class(MMDToolsCreateScene)
+#	bpy.utils.unregister_class(MMDToolsInitScene)
 
 	for cp in mmdtools_compat_panels:
 		if hasattr(bpy.types, cp):
