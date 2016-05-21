@@ -97,7 +97,7 @@
           <ThemeWidgetColors outline="#3c3c3c"
                              inner="#000000ff"
                              inner_sel="#000000ff"
-                             item="#0039f4ff"
+                             item="#4a90d9ff"
                              text="#ffffff"
                              text_sel="#ffffff"
                              show_shaded="TRUE"
@@ -180,7 +180,7 @@
         <wcol_menu_item>
           <ThemeWidgetColors outline="#3c3c3c"
                              inner="#dededeff"
-                             inner_sel="#0039f4ff"
+                             inner_sel="#4a90d9ff"
                              item="#000000ff"
                              text="#000000"
                              text_sel="#ffffff"
@@ -216,7 +216,7 @@
         <wcol_list_item>
           <ThemeWidgetColors outline="#3c3c3c"
                              inner="#ffffffff"
-                             inner_sel="#0039f4ff"
+                             inner_sel="#4a90d9ff"
                              item="#000000ff"
                              text="#000000"
                              text_sel="#ffffff"
@@ -327,7 +327,7 @@
             </gradients>
             <panelcolors>
               <ThemePanelColors header="#00000029"
-                                back="#000000b3"
+                                back="#3c3c3cff"
                                 show_header="TRUE"
                                 show_back="TRUE">
               </ThemePanelColors>
@@ -539,7 +539,7 @@
           </ThemeSpaceGeneric>
         </space>
         <space_list>
-          <ThemeSpaceListGeneric list="#414141"
+          <ThemeSpaceListGeneric list="#3c3c3c"
                                  list_title="#000000"
                                  list_text="#000000"
                                  list_text_hi="#f06969">
@@ -666,7 +666,7 @@
     <properties>
       <ThemeProperties>
         <space>
-          <ThemeSpaceGeneric back="#7c0008"
+          <ThemeSpaceGeneric back="#5e2f2f"
                              title="#ffffff"
                              text="#ffffff"
                              text_hi="#bbbbbb"
@@ -722,7 +722,7 @@
                              tab_outline="#c5c5c5">
             <panelcolors>
               <ThemePanelColors header="#ffffff19"
-                                back="#4c4c4cff"
+                                back="#3c3c3cff"
                                 show_header="FALSE"
                                 show_back="TRUE">
               </ThemePanelColors>
@@ -737,7 +737,7 @@
                      time_keyframe="#ddd700"
                      time_grease_pencil="#b5e61d">
         <space>
-          <ThemeSpaceGeneric back="#1b0f81"
+          <ThemeSpaceGeneric back="#303060"
                              title="#000000"
                              text="#000000"
                              text_hi="#ffffff"
@@ -809,9 +809,9 @@
                              tab_outline="#c5c5c5">
             <panelcolors>
               <ThemePanelColors header="#00000008"
-                                back="#72727280"
+                                back="#3c3c3cff"
                                 show_header="TRUE"
-                                show_back="FALSE">
+                                show_back="TRUE">
               </ThemePanelColors>
             </panelcolors>
           </ThemeSpaceGeneric>
@@ -845,7 +845,7 @@
                              tab_outline="#c5c5c5">
             <panelcolors>
               <ThemePanelColors header="#ffffff19"
-                                back="#72727280"
+                                back="#72727287"
                                 show_header="FALSE"
                                 show_back="FALSE">
               </ThemePanelColors>
@@ -858,7 +858,7 @@
       <ThemeOutliner match="#337f33"
                      selected_highlight="#f6f6f6">
         <space>
-          <ThemeSpaceGeneric back="#008111"
+          <ThemeSpaceGeneric back="#2f5e2f"
                              title="#000000"
                              text="#ffffff"
                              text_hi="#ffffff"
@@ -925,7 +925,7 @@
     <user_preferences>
       <ThemeUserPreferences>
         <space>
-          <ThemeSpaceGeneric back="#4c4c4c"
+          <ThemeSpaceGeneric back="#3c3c3c"
                              title="#000000"
                              text="#ffa600"
                              text_hi="#ffffff"
@@ -942,7 +942,7 @@
                              tab_outline="#c5c5c5">
             <panelcolors>
               <ThemePanelColors header="#ffffff18"
-                                back="#4c4c4cff"
+                                back="#3c3c3cff"
                                 show_header="FALSE"
                                 show_back="FALSE">
               </ThemePanelColors>
