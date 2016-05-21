@@ -164,6 +164,8 @@ def mmd_tools_scene_init():
 
 	camera.data.clip_end = 1000
 
+	camera.data.passepartout_alpha = 1 # just for style
+
 def mmd_tools_panel_init_menu_draw(self, context):
 	self.layout.operator("mmd_tools.init_scene")
 
