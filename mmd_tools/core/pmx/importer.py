@@ -374,9 +374,19 @@ class PMXImporter:
             mat = bpy.data.materials.new(name=i.name)
             self.__materialTable.append(mat)
             mmd_mat = mat.mmd_material
-            mat.diffuse_color = i.diffuse[0:3]
+            mat.use_nodes = True
+            nodes = mat.node_tree.nodes
+            ng = nodes.new("ShaderNodeGroup")
+            ng.name = "mmd_tools_shader"
+            ng.node_tree = bpy.data.node_groups["mmd_tools_shader"]
+            ng.inputs[0].default_value = i.diffuse[0:3] + [1.0]
+            ng.inputs[1].default_value = i.specular + [1.0]
+            ng.inputs[2].default_value = i.ambient + [1.0]
+            if i.is_shared_toon_texture:
+                ng.inputs[3].default_value = i.toon_texture
+            mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
+
             mat.alpha = i.diffuse[3]
-            mat.specular_color = i.specular
             if mat.alpha < 1.0 or mat.specular_alpha < 1.0 or i.texture != -1:
                 mat.use_transparency = True
                 mat.transparency_method = 'Z_TRANSPARENCY'
