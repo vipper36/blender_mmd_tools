@@ -132,6 +132,13 @@ def mmd_tools_engine_shader_create():
 		],
 		{"blend_type": "ADD", "use_clamp": True}, "mmd_tools Amb Add"],
 
+		["ShaderNodeMixRGB",[
+			1.0,
+			["mmd_tools Amb Add", 0],
+			["mmd_tools Group Input", 3],
+		],
+		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Tex Mul"],
+
 # TOON
 		["ShaderNodeExtendedMaterial", [
 			[1.0, 1.0, 1.0, 1.0],
@@ -160,31 +167,31 @@ def mmd_tools_engine_shader_create():
 		["ShaderNodeValToRGB",[["mmd_tools Pure Material", 0]], None, "mmd_tools ToonRamp 6"],
 
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			-0.1, #XXX
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 1"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			0.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 2"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			1.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 3"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			2.9,
 		], {"operation": "GREATER_THAN"} , "mmd_tools Math 4"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			3.9,
 		], {"operation": "GREATER_THAN"} , "mmd_tools Math 5"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			4.9,
 		], {"operation": "GREATER_THAN"} , "mmd_tools Math 6"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 3],
+			["mmd_tools Group Input", 4],
 			5.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 7"],
 
@@ -226,7 +233,7 @@ def mmd_tools_engine_shader_create():
 
 		["ShaderNodeMixRGB",[
 			1.0,
-			["mmd_tools Amb Add", 0],
+			["mmd_tools Tex Mul", 0],
 			["mmd_tools Mix 7", 0],
 		],
 		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Mul"],
@@ -315,8 +322,10 @@ def mmd_tools_engine_shader_create():
 	shader.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
 	shader.inputs[2].name = "Amb"
 	shader.inputs[2].default_value = [0.0, 0.0, 0.0, 1.0]
-	shader.inputs[3].name = "Toon"
-	shader.inputs[3].default_value = 0.0
+	shader.inputs[3].name = "Tex"
+	shader.inputs[3].default_value = [1.0, 1.0, 1.0, 1.0]
+	shader.inputs[4].name = "Toon"
+	shader.inputs[4].default_value = 0.0
 
 	return shader
 

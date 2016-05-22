@@ -242,7 +242,7 @@ class FnMaterial(object):
             #shared_toon_folder = addon_preferences('shared_toon_folder', '')
             #toon_path = os.path.join(shared_toon_folder, 'toon%02d.bmp'%(mmd_mat.shared_toon_texture+1))
             #self.create_toon_texture(bpy.path.resolve_ncase(path=toon_path))
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[3].default_value = mmd_mat.shared_toon_texture
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[4].default_value = mmd_mat.shared_toon_texture
         elif mmd_mat.toon_texture != '':
             self.create_toon_texture(mmd_mat.toon_texture)
         else:
@@ -250,7 +250,6 @@ class FnMaterial(object):
 
     def remove_toon_texture(self):
         self.__remove_texture(self.__TOON_TEX_SLOT)
-
 
     def update_ambient_color(self):
         mat = self.__material

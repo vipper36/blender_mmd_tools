@@ -382,8 +382,11 @@ class PMXImporter:
             ng.inputs[0].default_value = i.diffuse[0:3] + [1.0]
             ng.inputs[1].default_value = i.specular + [1.0]
             ng.inputs[2].default_value = i.ambient + [1.0]
+
+            geon = nodes.new("ShaderNodeGeometry")
+
             if i.is_shared_toon_texture:
-                ng.inputs[3].default_value = i.toon_texture
+                ng.inputs[4].default_value = i.toon_texture
             mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
 
             mat.alpha = i.diffuse[3]
@@ -424,6 +427,13 @@ class PMXImporter:
                 texture_slot = fnMat.create_texture(self.__textureTable[i.texture])
                 texture_slot.texture.use_mipmap = self.__use_mipmap
                 self.__imageTable[len(self.__materialTable)-1] = texture_slot.texture.image
+
+                texn = nodes.new("ShaderNodeTexture")
+                texn.texture = texture_slot.texture
+                mat.node_tree.links.new(texn.inputs[0], geon.outputs[4]) # UV
+                mat.node_tree.links.new(ng.inputs[3], texn.outputs[1])
+
+
             if i.sphere_texture_mode == 2:
                 amount = self.__spa_blend_factor
             else:
