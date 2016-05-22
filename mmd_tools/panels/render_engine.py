@@ -445,6 +445,10 @@ def mmd_tools_scene_init():
 	shadow_catcher_mat.use_only_shadow = True
 	shadow_catcher_mat.shadow_only_type = 'SHADOW_ONLY'
 
+	# XXX: I have no idea if this is good or bad.
+	shadow_catcher_mat.use_transparency = True
+	shadow_catcher_mat.alpha = 0.3
+
 	shadow_catcher_in = bpy.data.meshes.new("Shadow_Catcher_Mesh")
 
 	verts = [(-50.0, 50.0, 0.0), (-50.0, -50.0, 0.0), (50.0, -50.0, 0.0), (50.0, 50.0, 0.0)]
