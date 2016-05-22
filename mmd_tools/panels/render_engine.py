@@ -94,6 +94,13 @@ def mmd_tools_engine_shader_create():
 		["ShaderNodeMixRGB",[
 			1.0,
 			["mmd_tools Lamp Data", 0],
+			[0.2, 0.2, 0.2, 1.0], # 1/energy
+		],
+		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Lamp Color"],
+
+		["ShaderNodeMixRGB",[
+			1.0,
+			["mmd_tools Lamp Color", 0],
 			["mmd_tools Group Input", 0],
 		],
 		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Dif Mul"],
