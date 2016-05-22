@@ -424,6 +424,7 @@ def mmd_tools_scene_init():
 	lamp_in = bpy.data.lamps.new(name="MMD_Lamp", type="SUN")
 	lamp_in.color = (154/255.0, 154/255.0, 154/255.0)
 	lamp_in.energy = 1.0
+	lamp_in.shadow_method = 'RAY_SHADOW'
 	lamp = bpy.data.objects.new(name="MMD_Lamp", object_data=lamp_in)
 	lamp.location = (-0.5, -0.5, 1.0)
 	active_scene.objects.link(lamp)
@@ -439,6 +440,25 @@ def mmd_tools_scene_init():
 	lamp_look_at.target = lamp_tgt
 	lamp_look_at.up_axis = 'UP_X'
 	lamp_look_at.track_axis = 'TRACK_NEGATIVE_Z'
+
+	shadow_catcher_mat = bpy.data.materials.new(name="mmd_tools Shadow Catcher")
+	shadow_catcher_mat.use_only_shadow = True
+	shadow_catcher_mat.shadow_only_type = 'SHADOW_ONLY'
+
+	shadow_catcher_in = bpy.data.meshes.new("Shadow_Catcher_Mesh")
+
+	verts = [(-50.0, 50.0, 0.0), (-50.0, -50.0, 0.0), (50.0, -50.0, 0.0), (50.0, 50.0, 0.0)]
+	shadow_catcher_in.from_pydata(verts, [], [[0,1,2,3]])
+	shadow_catcher_in.update(calc_edges=True)
+	shadow_catcher_in.materials.append(shadow_catcher_mat)
+
+	shadow_catcher = bpy.data.objects.new( "Shadow_Catcher", shadow_catcher_in )
+	shadow_catcher.location = (0.0, 0.0, 0.0)
+
+	shadow_catcher.hide_select = True
+	shadow_catcher.hide = True
+
+	active_scene.objects.link(shadow_catcher)
 
 	# MMD-compat shader (WIP)
 	mmd_tools_engine_shader_create()
