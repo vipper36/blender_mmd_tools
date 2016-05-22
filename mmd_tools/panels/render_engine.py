@@ -423,10 +423,10 @@ def mmd_tools_scene_init():
 	# MMD-compat lamp
 	lamp_in = bpy.data.lamps.new(name="MMD_Lamp", type="SUN")
 	lamp_in.color = (154/255.0, 154/255.0, 154/255.0)
-	lamp_in.energy = 1.0
+	lamp_in.energy = 5.0 # XXX: why?
 	lamp_in.shadow_method = 'RAY_SHADOW'
 	lamp = bpy.data.objects.new(name="MMD_Lamp", object_data=lamp_in)
-	lamp.location = (-0.5, -0.5, 1.0)
+	lamp.location = (0.5, -0.5, 1.0)
 	active_scene.objects.link(lamp)
 
 	lamp_tgt = bpy.data.objects.new( "LAMP_Target", None )
