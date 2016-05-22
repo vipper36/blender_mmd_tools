@@ -75,15 +75,17 @@ def menu_func_export(self, context):
 def menu_func_armature(self, context):
     self.layout.operator(operators.model.CreateMMDModelRoot.bl_idname, text='Create MMD Model')
 
-
 def register():
     bpy.utils.register_module(__name__)
     bpy.types.INFO_MT_file_import.append(menu_func_import)
     bpy.types.INFO_MT_file_export.append(menu_func_export)
     bpy.types.INFO_MT_armature_add.append(menu_func_armature)
     properties.register()
+    panels.render_engine.mmdtools_engine_add()
 
 def unregister():
+    panels.render_engine.mmdtools_engine_remove()
+
     bpy.types.INFO_MT_file_import.remove(menu_func_import)
     bpy.types.INFO_MT_file_export.remove(menu_func_export)
     bpy.types.INFO_MT_armature_add.remove(menu_func_armature)

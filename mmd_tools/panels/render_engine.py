@@ -484,10 +484,6 @@ def mmd_tools_scene_create():
 	scene.render.engine = "mmd_tools_engine"
 	mmd_tools_scene_init()
 
-def mmd_tools_panel_init_menu_draw(self, context):
-#	self.layout.operator("mmd_tools.init_scene")
-	self.layout.operator("mmd_tools.create_scene")
-
 #class MMDToolsInitScene(bpy.types.Operator):
 #	"""Set MMD default parameter to current Scene"""
 #	bl_idname = "mmd_tools.init_scene"
@@ -499,6 +495,7 @@ def mmd_tools_panel_init_menu_draw(self, context):
 #
 #		return {'FINISHED'}
 
+ # XXX: should move to operators
 class MMDToolsCreateScene(bpy.types.Operator):
 	"""Create a scene with MMD default params"""
 	bl_idname = "mmd_tools.create_scene"
@@ -510,30 +507,37 @@ class MMDToolsCreateScene(bpy.types.Operator):
 
 		return {'FINISHED'}
 
-def register():
-	bpy.utils.register_class(MMDToolsRenderEngine)
-
+def mmdtools_engine_add():
 	for cp in mmdtools_compat_panels:
 		if hasattr(bpy.types, cp):
 			panel = getattr(bpy.types, cp)
 			panel.COMPAT_ENGINES.add('mmd_tools_engine')
 
-#	bpy.utils.register_class(MMDToolsInitScene)
-	bpy.utils.register_class(MMDToolsCreateScene)
-	bpy.types.OBJECT_PT_mmd_tools_object.append(mmd_tools_panel_init_menu_draw)
-
-def unregister():
-
-	bpy.types.OBJECT_PT_mmd_tools_object.remove(mmd_tools_panel_init_menu_draw)
-	bpy.utils.unregister_class(MMDToolsCreateScene)
-#	bpy.utils.unregister_class(MMDToolsInitScene)
-
+def mmdtools_engine_remove():
 	for cp in mmdtools_compat_panels:
 		if hasattr(bpy.types, cp):
 			panel = getattr(bpy.types, cp)
 			panel.COMPAT_ENGINES.remove('mmd_tools_engine')
 
-	bpy.utils.unregister_class(MMDToolsRenderEngine)
 
-if __name__ == "__main__":
-	register()
+# for debug
+#def mmd_tools_panel_init_menu_draw(self, context):
+##	self.layout.operator("mmd_tools.init_scene")
+#	self.layout.operator("mmd_tools.create_scene")
+
+#def register():
+#	bpy.utils.register_class(MMDToolsRenderEngine)
+#	mmdtools_engine_add()
+#	bpy.utils.register_class(MMDToolsInitScene)
+#	bpy.utils.register_class(MMDToolsCreateScene)
+#	bpy.types.OBJECT_PT_mmd_tools_object.append(mmd_tools_panel_init_menu_draw)
+
+#def unregister():
+#	bpy.types.OBJECT_PT_mmd_tools_object.remove(mmd_tools_panel_init_menu_draw)
+#	bpy.utils.unregister_class(MMDToolsCreateScene)
+#	bpy.utils.unregister_class(MMDToolsInitScene)
+#	mmdtools_engine_remove()
+#	bpy.utils.unregister_class(MMDToolsRenderEngine)
+
+#if __name__ == "__main__":
+#	register()

@@ -5,7 +5,7 @@ from bpy.types import Panel, Menu, UIList
 
 from mmd_tools import operators
 import mmd_tools.core.model as mmd_model
-
+from mmd_tools import panels
 
 class _PanelBase(object):
     bl_space_type = 'VIEW_3D'
@@ -22,6 +22,9 @@ class MMDToolsObjectPanel(_PanelBase, Panel):
         active_obj = context.active_object
 
         layout = self.layout
+
+        col = layout.column(align=True)
+        col.operator(panels.render_engine.MMDToolsCreateScene.bl_idname, text='Create MMD Scene')
 
         col = layout.column(align=True)
         col.label('Edit:')
