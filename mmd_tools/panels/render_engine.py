@@ -87,6 +87,7 @@ def mmd_tools_engine_shader_create():
 	l_mat.diffuse_shader = 'FRESNEL'
 	l_mat.diffuse_fresnel = 0.0
 	l_mat.diffuse_fresnel_factor = 0.0
+	l_mat.use_shadows = False
 
 	# type, input, params, name
 	engine_shader = [
@@ -103,39 +104,13 @@ def mmd_tools_engine_shader_create():
 			1.0,
 			0.0,
 			1.0,
-			1.0,
+			0.0,
 		], {
 			"use_diffuse": True,
 			"use_specular": False,
 			"invert_normal": False,
 			"material": bpy.data.materials["mmd_tools Light Base"]},
-			"mmd_tools Front Light Color Receiver"],
-
-		["ShaderNodeExtendedMaterial", [
-			[1.0, 1.0, 1.0, 1.0],
-			[0.0, 0.0, 0.0, 1.0],
-			1.0,
-			[0.0, 0.0, 0.0],
-			[0.0, 0.0, 0.0, 1.0],
-			1.0,
-			0.0,
-			1.0,
-			0.0,
-			1.0,
-			1.0,
-		], {
-			"use_diffuse": True,
-			"use_specular": False,
-			"invert_normal": True,
-			"material": bpy.data.materials["mmd_tools Light Base"]},
-			"mmd_tools Back Light Color Receiver"],
-
-		["ShaderNodeMixRGB",[
-			1.0,
-			["mmd_tools Front Light Color Receiver", 0],
-			["mmd_tools Back Light Color Receiver", 0],
-		],
-		{"blend_type": "ADD", "use_clamp": False}, "mmd_tools Lamp Data"],
+			"mmd_tools Lamp Data"],
 
 		["ShaderNodeMixRGB",[
 			1.0,
