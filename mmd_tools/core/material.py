@@ -242,7 +242,7 @@ class FnMaterial(object):
             #shared_toon_folder = addon_preferences('shared_toon_folder', '')
             #toon_path = os.path.join(shared_toon_folder, 'toon%02d.bmp'%(mmd_mat.shared_toon_texture+1))
             #self.create_toon_texture(bpy.path.resolve_ncase(path=toon_path))
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[4].default_value = mmd_mat.shared_toon_texture
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = mmd_mat.shared_toon_texture
         elif mmd_mat.toon_texture != '':
             self.create_toon_texture(mmd_mat.toon_texture)
         else:
@@ -254,7 +254,7 @@ class FnMaterial(object):
     def update_ambient_color(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        mat.node_tree.nodes["mmd_tools_shader"].inputs[2].default_value = list(mmd_mat.ambient_color) + [1.0]
+        mat.node_tree.nodes["mmd_tools_shader"].inputs[3].default_value = list(mmd_mat.ambient_color) + [1.0]
 
     def update_diffuse_color(self):
         mat = self.__material
@@ -275,11 +275,12 @@ class FnMaterial(object):
         mat = self.__material
         mmd_mat = mat.mmd_material
         shininess = mmd_mat.shininess
-        mat.specular_hardness = shininess
+        spw_mat = mat.node_tree.nodes["Spec Weight"].material
+        spw_mat.specular_hardness = shininess
         if shininess > 0:
-            mat.specular_intensity = 0.5
+            spw_mat.specular_intensity = 0.3 # why?
         else:
-            mat.specular_intensity = 0
+            spw_mat.specular_intensity = 0
 
     def update_is_double_sided(self):
         mat = self.__material

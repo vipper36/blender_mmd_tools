@@ -381,12 +381,28 @@ class PMXImporter:
             ng.node_tree = bpy.data.node_groups["mmd_tools_shader"]
             ng.inputs[0].default_value = i.diffuse[0:3] + [1.0]
             ng.inputs[1].default_value = i.specular + [1.0]
-            ng.inputs[2].default_value = i.ambient + [1.0]
+            ng.inputs[3].default_value = i.ambient + [1.0]
+
+            mat_spw = bpy.data.materials.new(name=i.name+".spw")
+            mat_spw.diffuse_color = (0.0, 0.0, 0.0)
+            mat_spw.diffuse_intensity = 0.0
+            mat_spw.specular_color = (1.0, 1.0, 1.0)
+            mat_spw.specular_hardness = i.shininess
+            if i.shininess > 0:
+                mat_spw.specular_intensity = 0.3 # why?
+            else:
+                mat_spw.specular_intensity = 0
+
+            spwn = nodes.new("ShaderNodeExtendedMaterial")
+            spwn.name = "Spec Weight"
+            spwn.use_diffuse = False
+            spwn.material = mat_spw
+            mat.node_tree.links.new(ng.inputs[2], spwn.outputs[0])
 
             geon = nodes.new("ShaderNodeGeometry")
 
             if i.is_shared_toon_texture:
-                ng.inputs[4].default_value = i.toon_texture
+                ng.inputs[5].default_value = i.toon_texture
             mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
 
             mat.alpha = i.diffuse[3]
@@ -431,7 +447,7 @@ class PMXImporter:
                 texn = nodes.new("ShaderNodeTexture")
                 texn.texture = texture_slot.texture
                 mat.node_tree.links.new(texn.inputs[0], geon.outputs[4]) # UV
-                mat.node_tree.links.new(ng.inputs[3], texn.outputs[1])
+                mat.node_tree.links.new(ng.inputs[4], texn.outputs[1])
 
 
             if i.sphere_texture_mode == 2:
