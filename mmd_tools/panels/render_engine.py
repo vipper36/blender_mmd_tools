@@ -144,7 +144,13 @@ def mmd_tools_engine_shader_create():
 		],
 		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Lamp Color"],
 
-        ["ShaderNodeSeparateRGB", [["mmd_tools Group Input", 0]], None, "mmd_tools Placeholder 1"],
+		["ShaderNodeMixRGB",[
+			1.0,
+			["mmd_tools Lamp Color", 0],
+			["mmd_tools Group Input", 0],
+		],
+		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Dif Mul"],
+
 
 		["ShaderNodeMixRGB",[
 			1.0,
@@ -155,22 +161,14 @@ def mmd_tools_engine_shader_create():
 
 		["ShaderNodeMixRGB",[
 			1.0,
-			["mmd_tools Group Input", 0],
+			["mmd_tools Dif Mul", 0],
 			["mmd_tools Spec Mul", 0],
 		],
 		{"blend_type": "ADD", "use_clamp": True}, "mmd_tools Spec Add"],
 
-
 		["ShaderNodeMixRGB",[
 			1.0,
 			["mmd_tools Spec Add", 0],
-			["mmd_tools Lamp Color", 0],
-		],
-		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Lamp Mul"],
-
-		["ShaderNodeMixRGB",[
-			1.0,
-			["mmd_tools Lamp Mul", 0],
 			["mmd_tools Group Input", 3],
 		],
 		{"blend_type": "ADD", "use_clamp": True}, "mmd_tools Amb Add"],

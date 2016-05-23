@@ -389,7 +389,7 @@ class PMXImporter:
             mat_spw.specular_color = (1.0, 1.0, 1.0)
             mat_spw.specular_hardness = i.shininess
             if i.shininess > 0:
-                mat_spw.specular_intensity = 0.3 # why?
+                mat_spw.specular_intensity = 0.2
             else:
                 mat_spw.specular_intensity = 0
 
