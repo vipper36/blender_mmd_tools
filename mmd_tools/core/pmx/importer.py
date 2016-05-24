@@ -374,6 +374,7 @@ class PMXImporter:
             mat = bpy.data.materials.new(name=i.name)
             self.__materialTable.append(mat)
             mmd_mat = mat.mmd_material
+            mat.use_transparency = True
             mat.use_nodes = True
             nodes = mat.node_tree.nodes
             ng = nodes.new("ShaderNodeGroup")
@@ -410,10 +411,28 @@ class PMXImporter:
                 ng.inputs[5].default_value = i.toon_texture
             mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
 
-            mat.alpha = i.diffuse[3]
-            if mat.alpha < 1.0 or mat.specular_alpha < 1.0 or i.texture != -1:
-                mat.use_transparency = True
-                mat.transparency_method = 'Z_TRANSPARENCY'
+#            mat.alpha = i.diffuse[3]
+#            if mat.alpha < 1.0 or mat.specular_alpha < 1.0 or i.texture != -1:
+#                mat.use_transparency = True
+#                mat.transparency_method = 'Z_TRANSPARENCY'
+
+            amat = bpy.data.materials.new(name=i.name + ".alp")
+            amat.diffuse_color = [1.0, 1.0, 1.0]
+            amat.diffuse_intensity = 1.0
+            amat.use_shadeless = True
+            amat.use_transparency = True
+            amat.transparency_method = 'Z_TRANSPARENCY'
+            amat.alpha = i.diffuse[3]
+            amat_tex = amat.texture_slots.create(0)
+            amat_tex.use_map_alpha = True
+            amat_tex.texture_coords = 'UV'
+            amat_tex.blend_type = 'MULTIPLY'
+
+            an = nodes.new("ShaderNodeMaterial")
+            an.name = "Alpha Mul"
+            an.material = amat
+            mat.node_tree.links.new(nodes["Output"].inputs[1], an.outputs[1])
+
 
             mmd_mat.name_j = i.name
             mmd_mat.name_e = i.name_e
@@ -521,6 +540,7 @@ class PMXImporter:
                 texture_slot.texture.use_mipmap = self.__use_mipmap
                 self.__imageTable[len(self.__materialTable)-1] = texture_slot.texture.image
 
+                amat_tex.texture = texture_slot.texture
                 texn.texture = texture_slot.texture
                 utex.inputs[0].default_value = 1.0
 

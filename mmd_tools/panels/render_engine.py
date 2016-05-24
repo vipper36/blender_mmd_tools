@@ -215,7 +215,7 @@ def mmd_tools_engine_shader_create():
 
 		["ShaderNodeMixRGB",[
 			["mmd_tools Group Input", 7],
-			["mmd_tools Pure Material", 0],
+			[1.0, 1.0, 1.0, 1.0], # checked
 			["mmd_tools Group Input", 6],
 		],
 		{"blend_type": "MIX", "use_clamp": True}, "mmd_tools ToonTex"],
@@ -500,6 +500,7 @@ def mmd_tools_scene_init():
 
 	bpy.context.area.spaces[0].viewport_shade='TEXTURED'
 	bpy.context.scene.game_settings.material_mode = 'GLSL'
+	bpy.context.space_data.show_backface_culling = True
 
 def mmd_tools_scene_create():
 	bpy.ops.scene.new(type="NEW")

@@ -838,7 +838,7 @@ class Material:
         self.shininess = 0
         self.ambient = []
 
-        self.is_double_sided = True
+        self.is_double_sided = False
         self.enabled_drop_shadow = True
         self.enabled_self_shadow_map = True
         self.enabled_self_shadow = True

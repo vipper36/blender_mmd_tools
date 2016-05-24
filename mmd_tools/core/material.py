@@ -152,12 +152,14 @@ class FnMaterial(object):
         texture_slot.blend_type = 'MULTIPLY'
         texture_slot.texture = self.__load_texture(filepath)
         mat.node_tree.nodes["Tex"].texture = texture_slot.texture
+        mat.node_tree.nodes["Alpha Mul"].material.texture_slots[0].texture = texture_slot.texture
         mat.node_tree.nodes["Use Tex"].inputs[0].default_value = 1.0
         return texture_slot
 
     def remove_texture(self):
         mat = self.__material
         mat.node_tree.nodes["Tex"].texture = None
+        mat.node_tree.nodes["Alpha Mul"].material.texture_slots[0].texture = None
         mat.node_tree.nodes["Use Tex"].inputs[0].default_value = 0.0
         self.__remove_texture(self.__BASE_TEX_SLOT)
 
@@ -298,7 +300,8 @@ class FnMaterial(object):
     def update_alpha(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        mat.alpha = mmd_mat.alpha
+#        mat.alpha = mmd_mat.alpha
+        mat.node_tree.nodes["Alpha Mul"].material.alpha = mmd_mat.alpha
 
     def update_specular_color(self):
         mat = self.__material
