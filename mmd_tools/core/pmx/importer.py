@@ -431,8 +431,20 @@ class PMXImporter:
             an = nodes.new("ShaderNodeMaterial")
             an.name = "Alpha Mul"
             an.material = amat
-            mat.node_tree.links.new(nodes["Output"].inputs[1], an.outputs[1])
 
+            issn = nodes.new("ShaderNodeMath")
+            issn.name = "Is Single"
+            issn.operation = "MULTIPLY"
+            mat.node_tree.links.new(issn.inputs[0], geon.outputs[8])
+            issn.inputs[1].default_value = float(not i.is_double_sided)
+
+            fan = nodes.new("ShaderNodeMath")
+            fan.name = "Final Alpha"
+            fan.operation = "MULTIPLY"
+            mat.node_tree.links.new(fan.inputs[0], an.outputs[1])
+            mat.node_tree.links.new(fan.inputs[1], issn.outputs[0])
+
+            mat.node_tree.links.new(nodes["Output"].inputs[1], fan.outputs[0])
 
             mmd_mat.name_j = i.name
             mmd_mat.name_e = i.name_e
