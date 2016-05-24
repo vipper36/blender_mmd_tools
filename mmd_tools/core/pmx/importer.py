@@ -434,9 +434,9 @@ class PMXImporter:
 
             issn = nodes.new("ShaderNodeMath")
             issn.name = "Is Single"
-            issn.operation = "MULTIPLY"
+            issn.operation = "MAXIMUM"
             mat.node_tree.links.new(issn.inputs[0], geon.outputs[8])
-            issn.inputs[1].default_value = float(not i.is_double_sided)
+            issn.inputs[1].default_value = float(i.is_double_sided)
 
             fan = nodes.new("ShaderNodeMath")
             fan.name = "Final Alpha"
