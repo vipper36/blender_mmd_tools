@@ -144,14 +144,21 @@ class FnMaterial(object):
         Returns:
             bpy.types.MaterialTextureSlot object
         """
+        mat = self.__material
+        mmd_mat = self.__material.mmd_material
         texture_slot = self.__material.texture_slots.create(self.__BASE_TEX_SLOT)
         texture_slot.use_map_alpha = True
         texture_slot.texture_coords = 'UV'
         texture_slot.blend_type = 'MULTIPLY'
         texture_slot.texture = self.__load_texture(filepath)
+        mat.node_tree.nodes["Tex"].texture = texture_slot.texture
+        mat.node_tree.nodes["Use Tex"].inputs[0].default_value = 1.0
         return texture_slot
 
     def remove_texture(self):
+        mat = self.__material
+        mat.node_tree.nodes["Tex"].texture = None
+        mat.node_tree.nodes["Use Tex"].inputs[0].default_value = 0.0
         self.__remove_texture(self.__BASE_TEX_SLOT)
 
     def __remove_texture(self, index):
@@ -189,27 +196,49 @@ class FnMaterial(object):
         Returns:
             bpy.types.MaterialTextureSlot object
         """
+        mat = self.__material
+        mmd_mat = self.__material.mmd_material
+
         texture_slot = self.__material.texture_slots.create(self.__SPHERE_TEX_SLOT)
         texture_slot.texture_coords = 'NORMAL'
         texture_slot.texture = self.__load_texture(filepath)
         texture_slot.texture.use_alpha = texture_slot.texture.image.use_alpha = False
+        mat.node_tree.nodes["Sphere Tex"].texture = texture_slot.texture
         self.update_sphere_texture_type()
         return texture_slot
 
     def update_sphere_texture_type(self):
+        mat = self.__material
+        mmd_mat = self.__material.mmd_material
+
         texture_slot = self.__material.texture_slots[self.__SPHERE_TEX_SLOT]
         if not texture_slot:
             return
         sphere_texture_type = int(self.__material.mmd_material.sphere_texture_type)
         if sphere_texture_type not in (1, 2, 3):
             texture_slot.use = False
+            mat.node_tree.nodes["Use Sphere Tex"].inputs[0].default_value = 0.0
         else:
             texture_slot.use = True
-            texture_slot.blend_type = ('MULTIPLY', 'ADD', 'SUBTRACT')[sphere_texture_type-1]
+            mat.node_tree.nodes["Mix Tex"].blend_type = ('MULTIPLY', 'ADD', 'MULTIPLY')[sphere_texture_type-1]
+            mat.node_tree.nodes["Use Sphere Tex"].inputs[0].default_value = 1.0
+            if sphere_texture_type == 2:
+                mat.node_tree.nodes["Use Sphere Tex"].inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+            else:
+                mat.node_tree.nodes["Use Sphere Tex"].inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+            if sphere_texture_type == 3:
+                mat.node_tree.links.new(mat.node_tree.nodes["Sphere Tex"].inputs[0], mat.node_tree.nodes["Geo2"].outputs[4]) # Additional UV
+            else:
+                mat.node_tree.links.new(mat.node_tree.nodes["Sphere Tex"].inputs[0], mat.node_tree.nodes["Geo"].outputs[5])
+
+            texture_slot.blend_type = ('MULTIPLY', 'ADD', 'MULTIPLY')[sphere_texture_type-1] # for debug?
 
     def remove_sphere_texture(self):
+        mat = self.__material
+        mmd_mat = self.__material.mmd_material
         self.__remove_texture(self.__SPHERE_TEX_SLOT)
-
+        mat.node_tree.nodes["Sphere Tex"].texture = None
+        mat.node_tree.nodes["Use Sphere Tex"].inputs[0].default_value = 0.0
 
     def get_toon_texture(self):
         return self.__get_texture(self.__TOON_TEX_SLOT)
@@ -244,9 +273,14 @@ class FnMaterial(object):
             #self.create_toon_texture(bpy.path.resolve_ncase(path=toon_path))
             mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = mmd_mat.shared_toon_texture
         elif mmd_mat.toon_texture != '':
-            self.create_toon_texture(mmd_mat.toon_texture)
+            slot = self.create_toon_texture(mmd_mat.toon_texture)
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = -1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = 1.0
+            mat.node_tree.nodes["Toon Tex"].texture = slot.texture
         else:
             self.remove_toon_texture()
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = -1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = 0.0
 
     def remove_toon_texture(self):
         self.__remove_texture(self.__TOON_TEX_SLOT)

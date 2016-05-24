@@ -400,6 +400,11 @@ class PMXImporter:
             mat.node_tree.links.new(ng.inputs[2], spwn.outputs[0])
 
             geon = nodes.new("ShaderNodeGeometry")
+            geon.name = "Geo"
+
+            geon2 = nodes.new("ShaderNodeGeometry")
+            geon2.name = "Geo2"
+            geon2.uv_layer = "UVMap.001"
 
             if i.is_shared_toon_texture:
                 ng.inputs[5].default_value = i.toon_texture
@@ -425,38 +430,122 @@ class PMXImporter:
             mmd_mat.edge_color = i.edge_color
             mmd_mat.edge_weight = i.edge_size
             mmd_mat.sphere_texture_type = str(i.sphere_texture_mode)
+
+            pmatn = nodes.new("ShaderNodeExtendedMaterial")
+            pmatn.name = "Pure Mat"
+            pmatn.material = bpy.data.materials["mmd_tools Node Base"]
+            pmatn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+            pmatn.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+            pmatn.inputs[2].default_value = 1.0
+            pmatn.inputs[3].default_value = [0.0, 0.0, 0.0]
+            pmatn.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
+            pmatn.inputs[5].default_value = 1.0
+            pmatn.inputs[6].default_value = 0.0
+            pmatn.inputs[7].default_value = 1.0
+            pmatn.inputs[8].default_value = 0.0
+            pmatn.inputs[9].default_value = 1.0
+            pmatn.inputs[10].default_value = 0.0
+
+            tvecn = nodes.new("ShaderNodeMixRGB")
+            tvecn.name = "Toon Vec Pre"
+            tvecn.blend_type = "MULTIPLY"
+            tvecn.inputs[0].default_value = 1.0
+            mat.node_tree.links.new(tvecn.inputs[1], pmatn.outputs[0])
+            tvecn.inputs[2].default_value = [0.0, 1.0, 0.0, 0.0]
+
+            tvecn2 = nodes.new("ShaderNodeMixRGB")
+            tvecn2.name = "Toon Vec"
+            tvecn2.blend_type = "SUBTRACT"
+            tvecn2.inputs[0].default_value = 1.0
+            mat.node_tree.links.new(tvecn2.inputs[1], tvecn.outputs[0])
+            tvecn2.inputs[2].default_value = [0.0, 0.5, 0.0, 0.0]
+
+            ttexn = nodes.new("ShaderNodeTexture")
+            ttexn.name = "Toon Tex"
+            mat.node_tree.links.new(ttexn.inputs[0], tvecn2.outputs[0])
+
+            mat.node_tree.links.new(ng.inputs[6], ttexn.outputs[1])
+
             if i.is_shared_toon_texture:
                 mmd_mat.is_shared_toon_texture = True
                 mmd_mat.shared_toon_texture = i.toon_texture
             else:
                 mmd_mat.is_shared_toon_texture = False
+                mmd_mat.shared_toon_texture = -1.0
                 if i.toon_texture >= 0:
                     mmd_mat.toon_texture = self.__textureTable[i.toon_texture]
+#                    ttexn.texture = XXX
+                    ng.inputs[7].default_value = 1.0
                 else:
                     mmd_mat.toon_texture = ''
+#                    ttexn.texture = None
+                    ng.inputs[7].default_value = 0.0
             mmd_mat.comment = i.comment
 
             self.__materialFaceCountTable.append(int(i.vertex_count/3))
             self.__meshObj.data.materials.append(mat)
             fnMat = FnMaterial(mat)
+
+            texn = nodes.new("ShaderNodeTexture")
+            texn.name = "Tex"
+            mat.node_tree.links.new(texn.inputs[0], geon.outputs[4]) # UV
+
+            utex = nodes.new("ShaderNodeMixRGB")
+            utex.name = "Use Tex"
+            utex.blend_type = "MIX"
+            utex.inputs[0].default_value = 0.0
+            utex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+            mat.node_tree.links.new(utex.inputs[2], texn.outputs[1])
+
+            stexn = nodes.new("ShaderNodeTexture")
+            stexn.name = "Sphere Tex"
+
+            ustex = nodes.new("ShaderNodeMixRGB")
+            ustex.name = "Use Sphere Tex"
+            ustex.blend_type = "MIX"
+            ustex.inputs[0].default_value = 0.0
+            ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+            mat.node_tree.links.new(ustex.inputs[2], stexn.outputs[1])
+
+            mixtex = nodes.new("ShaderNodeMixRGB")
+            mixtex.name = "Mix Tex"
+            mixtex.blend_type = "MULTIPLY"
+            mixtex.inputs[0].default_value = 1.0
+            mat.node_tree.links.new(mixtex.inputs[1], utex.outputs[0])
+            mat.node_tree.links.new(mixtex.inputs[2], ustex.outputs[0])
+
+            mat.node_tree.links.new(ng.inputs[4], mixtex.outputs[0])
+
             if i.texture != -1:
                 texture_slot = fnMat.create_texture(self.__textureTable[i.texture])
                 texture_slot.texture.use_mipmap = self.__use_mipmap
                 self.__imageTable[len(self.__materialTable)-1] = texture_slot.texture.image
 
-                texn = nodes.new("ShaderNodeTexture")
                 texn.texture = texture_slot.texture
-                mat.node_tree.links.new(texn.inputs[0], geon.outputs[4]) # UV
-                mat.node_tree.links.new(ng.inputs[4], texn.outputs[1])
+                utex.inputs[0].default_value = 1.0
 
+            if i.sphere_texture_mode == 1:
+#                amount = self.__sph_blend_factor
+                mat.node_tree.links.new(stexn.inputs[0], geon.outputs[5]) # Normal
+                mixtex.blend_type = "MULTIPLY"
+                ustex.inputs[0].default_value = 1.0
+                ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+            elif i.sphere_texture_mode == 2:
+#                amount = self.__spa_blend_factor
+                mat.node_tree.links.new(stexn.inputs[0], geon.outputs[5]) # Normal
+                mixtex.blend_type = "ADD"
+                ustex.inputs[0].default_value = 1.0
+                ustex.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+            elif i.sphere_texture_mode == 3:
+                mat.node_tree.links.new(stexn.inputs[0], geon2.outputs[4]) # Additional UV
+                mixtex.blend_type = "MULTIPLY"
+                ustex.inputs[0].default_value = 1.0
+                ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
 
-            if i.sphere_texture_mode == 2:
-                amount = self.__spa_blend_factor
-            else:
-                amount = self.__sph_blend_factor
-            if i.sphere_texture != -1 and amount != 0.0:
+            if i.sphere_texture != -1: # and amount != 0.0
                 texture_slot = fnMat.create_sphere_texture(self.__textureTable[i.sphere_texture])
-                texture_slot.diffuse_color_factor = amount
+                stexn.texture = texture_slot.texture
+#                texture_slot.diffuse_color_factor = amount
 
     def __importFaces(self):
         pmxModel = self.__model
@@ -464,6 +553,7 @@ class PMXImporter:
 
         mesh.tessfaces.add(len(pmxModel.faces))
         uvLayer = mesh.tessface_uv_textures.new()
+        uvLayer2 = mesh.tessface_uv_textures.new()
         for i, f in enumerate(pmxModel.faces):
             bf = mesh.tessfaces[i]
             bf.vertices_raw = list(f) + [0]
@@ -474,8 +564,14 @@ class PMXImporter:
             uv.uv2 = self.flipUV_V(pmxModel.vertices[f[1]].uv)
             uv.uv3 = self.flipUV_V(pmxModel.vertices[f[2]].uv)
 
+            uv2 = uvLayer2.data[i]
+            uv2.uv1 = self.flipUV_V(pmxModel.vertices[f[0]].additional_uvs[0][0:2])
+            uv2.uv2 = self.flipUV_V(pmxModel.vertices[f[1]].additional_uvs[0][0:2])
+            uv2.uv3 = self.flipUV_V(pmxModel.vertices[f[2]].additional_uvs[0][0:2])
+
             bf.material_index = self.__getMaterialIndexFromFaceIndex(i)
             uv.image = self.__imageTable.get(bf.material_index, None)
+            #uv2.image = # XXX: TODO
 
     def __importVertexMorphs(self):
         pmxModel = self.__model

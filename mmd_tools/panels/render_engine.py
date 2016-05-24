@@ -211,9 +211,18 @@ def mmd_tools_engine_shader_create():
 			5.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 7"],
 
+		["ShaderNodeSeparateRGB", [["mmd_tools Group Input", 6]], None, "mmd_tools Placeholder 1"],
+
+		["ShaderNodeMixRGB",[
+			["mmd_tools Group Input", 7],
+			["mmd_tools Pure Material", 0],
+			["mmd_tools Group Input", 6],
+		],
+		{"blend_type": "MIX", "use_clamp": True}, "mmd_tools ToonTex"],
+
 		["ShaderNodeMixRGB",[
 			["mmd_tools Math 1", 0],
-			["mmd_tools Pure Material", 0],
+			["mmd_tools ToonTex", 0],
 			["mmd_tools ToonRamp 1", 0],
 		], None, "mmd_tools Mix 1"],
 		["ShaderNodeMixRGB",[
@@ -344,6 +353,10 @@ def mmd_tools_engine_shader_create():
 	shader.inputs[4].default_value = [1.0, 1.0, 1.0, 1.0]
 	shader.inputs[5].name = "Toon"
 	shader.inputs[5].default_value = 0.0
+	shader.inputs[6].name = "ToonTex"
+	shader.inputs[6].default_value = [1.0, 1.0, 1.0, 1.0]
+	shader.inputs[7].name = "UseToonTex"
+	shader.inputs[7].default_value = 0.0
 
 	return shader
 
