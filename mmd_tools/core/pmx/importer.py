@@ -564,10 +564,11 @@ class PMXImporter:
             uv.uv2 = self.flipUV_V(pmxModel.vertices[f[1]].uv)
             uv.uv3 = self.flipUV_V(pmxModel.vertices[f[2]].uv)
 
-            uv2 = uvLayer2.data[i]
-            uv2.uv1 = self.flipUV_V(pmxModel.vertices[f[0]].additional_uvs[0][0:2])
-            uv2.uv2 = self.flipUV_V(pmxModel.vertices[f[1]].additional_uvs[0][0:2])
-            uv2.uv3 = self.flipUV_V(pmxModel.vertices[f[2]].additional_uvs[0][0:2])
+            if len(pmxModel.vertices[f[0]].additional_uvs) >= 1:
+                uv2 = uvLayer2.data[i]
+                uv2.uv1 = self.flipUV_V(pmxModel.vertices[f[0]].additional_uvs[0][0:2])
+                uv2.uv2 = self.flipUV_V(pmxModel.vertices[f[1]].additional_uvs[0][0:2])
+                uv2.uv3 = self.flipUV_V(pmxModel.vertices[f[2]].additional_uvs[0][0:2])
 
             bf.material_index = self.__getMaterialIndexFromFaceIndex(i)
             uv.image = self.__imageTable.get(bf.material_index, None)
