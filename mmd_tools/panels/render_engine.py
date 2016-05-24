@@ -114,14 +114,7 @@ def mmd_tools_engine_shader_create():
 
 		["ShaderNodeMixRGB",[
 			1.0,
-			["mmd_tools Lamp Data", 0],
-			[0.2, 0.2, 0.2, 1.0], # 1/energy
-		],
-		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Lamp Color"],
-
-		["ShaderNodeMixRGB",[
-			1.0,
-			["mmd_tools Lamp Color", 0],
+			["mmd_tools Lamp Data", 3],
 			["mmd_tools Group Input", 0],
 		],
 		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Dif Mul"],
@@ -398,6 +391,8 @@ def mmd_tools_scene_init():
 		world = bpy.context.scene.world = bpy.data.worlds.new("World")
 	world.horizon_color = (1, 1, 1)
 	world.ambient_color = (0, 0, 0)
+	world.exposure = 1.0
+
 	bpy.context.space_data.show_world = True
 
 	# mmd compat screen
@@ -454,7 +449,7 @@ def mmd_tools_scene_init():
 	# MMD-compat lamp
 	lamp_in = bpy.data.lamps.new(name="MMD_Lamp", type="SUN")
 	lamp_in.color = (154/255.0, 154/255.0, 154/255.0)
-	lamp_in.energy = 5.0 # XXX: why?
+	lamp_in.energy = 1.0
 	lamp_in.shadow_method = 'RAY_SHADOW'
 	lamp = bpy.data.objects.new(name="MMD_Lamp", object_data=lamp_in)
 	lamp.location = (0.5, -0.5, 1.0)

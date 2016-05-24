@@ -315,7 +315,7 @@ class FnMaterial(object):
         spw_mat = mat.node_tree.nodes["Spec Weight"].material
         spw_mat.specular_hardness = shininess
         if shininess > 0:
-            spw_mat.specular_intensity = 0.2
+            spw_mat.specular_intensity = 0.2 # why?
         else:
             spw_mat.specular_intensity = 0
 
