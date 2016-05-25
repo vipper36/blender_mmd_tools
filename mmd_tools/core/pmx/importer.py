@@ -666,13 +666,6 @@ class PMXImporter:
             mat_vtx = self.__meshObj.vertex_groups.new(name=i.name + ".vtx")
             self.__materialVGTable.append(mat_vtx)
 
-#            edge_mix = self.__meshObj.modifiers.new(name=i.name + '.mix', type='VERTEX_WEIGHT_EDIT')
-#            edge_mix.vertex_group = edge_vtx.name
-#            edge_mix.use_add = True
-#            edge_mix.add_threshold = 0.0 #i.edge_size/10.0 #should use driver to independing from materials
-#            edge_mix.mask_constant = i.edge_size/10.0
-#            edge_mix.mask_vertex_group = mat_vtx.name
-
             edge_mix = self.__meshObj.modifiers.new(name=i.name + '.mix', type='VERTEX_WEIGHT_MIX')
             edge_mix.vertex_group_a = edge_vtx.name
             edge_mix.default_weight_a = 0.0
