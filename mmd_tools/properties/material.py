@@ -81,6 +81,8 @@ class MMDMaterial(PropertyGroup):
     """
     vgs = CollectionProperty(type=MMDVGForMaterial) # XXX: hack
 
+    edge_mat_name = bpy.props.StringProperty(name="Edge Material Name", default="")
+
     name_j = StringProperty(
         name='Name',
         description='Japanese Name',

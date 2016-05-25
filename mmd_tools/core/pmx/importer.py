@@ -632,6 +632,7 @@ class PMXImporter:
 #            edge_base_mat.translucency = 1.0
 
             edge_mat = bpy.data.materials.new(name=i.name + ".edge")
+            mmd_mat.edge_mat_name = edge_mat.name
             edge_mat.use_nodes = True
             edge_mat.use_transparency = True
             edge_mat.use_raytrace = False

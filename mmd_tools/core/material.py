@@ -346,7 +346,8 @@ class FnMaterial(object):
 
     def update_enabled_toon_edge(self):
         mat = self.__material
-        edge_mat = bpy.data.materials[mat.name + ".edge"]
+        mmd_mat = mat.mmd_material
+        edge_mat = bpy.data.materials[mmd_mat.edge_mat_name]
 #        if not hasattr(mat, 'line_color'): # freestyle line color
 #            return
         mmd_mat = mat.mmd_material
@@ -356,7 +357,8 @@ class FnMaterial(object):
 
     def update_edge_color(self):
         mat = self.__material
-        edge_mat = bpy.data.materials[mat.name + ".edge"]
+        mmd_mat = mat.mmd_material
+        edge_mat = bpy.data.materials[mmd_mat.edge_mat_name]
 #        if not hasattr(mat, 'line_color'): # freestyle line color
 #            return
         mmd_mat = mat.mmd_material
