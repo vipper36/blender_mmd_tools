@@ -366,5 +366,9 @@ class FnMaterial(object):
 #        mat.line_color = [r, g, b, min(int(mmd_mat.enabled_toon_edge), a)]
 
     def update_edge_weight(self):
-        pass
+#        pass
+        mat = self.__material
+        mmd_mat = mat.mmd_material
+        for i in mmd_mat.vgs:
+            bpy.data.objects[i.obj_name].modifiers[i.vg_name].mask_constant = mmd_mat.edge_weight/100.0
 

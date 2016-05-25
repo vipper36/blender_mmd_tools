@@ -56,6 +56,7 @@ class PMXImporter:
         self.__boneTable = []
         self.__rigidTable = []
         self.__materialTable = []
+        self.__materialVGTable = []
         self.__imageTable = {}
 
         self.__materialFaceCountTable = None
@@ -368,6 +369,7 @@ class PMXImporter:
         self.__importTextures()
 
         pmxModel = self.__model
+        edge_vtx = self.__meshObj.vertex_groups.new("edge_vtx")
 
         self.__materialFaceCountTable = []
         for i in pmxModel.materials:
@@ -632,6 +634,13 @@ class PMXImporter:
             edge_mat = bpy.data.materials.new(name=i.name + ".edge")
             edge_mat.use_nodes = True
             edge_mat.use_transparency = True
+            edge_mat.use_raytrace = False
+            edge_mat.use_cast_shadows = False
+            edge_mat.use_cast_buffer_shadows = False
+            edge_mat.use_cast_approximate = False
+            edge_mat.use_shadows = False
+            edge_mat.use_ray_shadow_bias = False
+            edge_mat.offset_z = 0.001 # why?
             nodes = edge_mat.node_tree.nodes
 
             edge_bn = nodes.new("ShaderNodeMaterial")
@@ -654,14 +663,57 @@ class PMXImporter:
 
             self.__meshObj.data.materials.append(edge_mat)
 
+            mat_vtx = self.__meshObj.vertex_groups.new(name=i.name + ".vtx")
+            self.__materialVGTable.append(mat_vtx)
+
+#            edge_mix = self.__meshObj.modifiers.new(name=i.name + '.mix', type='VERTEX_WEIGHT_EDIT')
+#            edge_mix.vertex_group = edge_vtx.name
+#            edge_mix.use_add = True
+#            edge_mix.add_threshold = 0.0 #i.edge_size/10.0 #should use driver to independing from materials
+#            edge_mix.mask_constant = i.edge_size/10.0
+#            edge_mix.mask_vertex_group = mat_vtx.name
+
+            edge_mix = self.__meshObj.modifiers.new(name=i.name + '.mix', type='VERTEX_WEIGHT_MIX')
+            edge_mix.vertex_group_a = edge_vtx.name
+            edge_mix.default_weight_a = 0.0
+            edge_mix.vertex_group_b = mat_vtx.name
+            edge_mix.default_weight_b = 1.0
+            edge_mix.mix_set = 'B'
+            edge_mix.mix_mode = 'ADD'
+#            d = edge_mix.driver_new("mask_constant") # XXX: why error?
+#            d.driver.expression = "bpy.data.materials['"+i.name+"'].mmd_material.edge_weight/100.0"
+            edge_mix.mask_constant = i.edge_size/100.0
+
+            mat_vg = mmd_mat.vgs.add() # XXX: not so good
+            mat_vg.obj_name = self.__meshObj.name
+            mat_vg.vg_name = edge_mix.name
+
+        cam_vtx = self.__meshObj.vertex_groups.new(name="cam_vtx")
+        cam_dist = self.__meshObj.modifiers.new(name='Camera Distance Receiver', type='VERTEX_WEIGHT_PROXIMITY')
+        cam_dist.max_dist = 1000
+        cam_dist.vertex_group = cam_vtx.name
+        cam_dist.target = bpy.context.scene.camera # XXX: not so good
+        cam_dist.proximity_mode = 'GEOMETRY'
+        cam_dist.proximity_geometry = {'VERTEX'}
+        cam_dist.mask_constant = 1.0
+
+        cam_mix = self.__meshObj.modifiers.new(name='Camera Distance Mixer', type='VERTEX_WEIGHT_MIX')
+        cam_mix.vertex_group_a = edge_vtx.name
+        cam_mix.default_weight_a = 1.0
+        cam_mix.vertex_group_b = cam_vtx.name
+        cam_mix.default_weight_b = 1.0
+        cam_mix.mix_mode = 'MUL'
+        cam_mix.mix_set = 'ALL'
+        cam_mix.mask_constant = 1.0
+
         edge_mod = self.__meshObj.modifiers.new(name='Edge Solidify', type='SOLIDIFY')
         edge_mod.offset = 1.0
-        edge_mod.thickness = 0.025
-        edge_mod.thickness_clamp = 0
+        edge_mod.thickness = 2 * 100.0 # XXX: why?
+        edge_mod.thickness_clamp = 0.001 # XXX: why?
         edge_mod.use_rim = False
         edge_mod.material_offset = 1
         edge_mod.use_flip_normals = True
-
+        edge_mod.vertex_group = edge_vtx.name
 
     def __importFaces(self):
         pmxModel = self.__model
@@ -689,6 +741,12 @@ class PMXImporter:
             bf.material_index = self.__getMaterialIndexFromFaceIndex(i)
             uv.image = self.__imageTable.get(bf.material_index, None)
             #uv2.image = # XXX: TODO
+
+            vg = self.__materialVGTable[int(bf.material_index/2)]
+            vg.add([f[0], f[1], f[2]], 1.0, 'ADD')
+
+            vg2 = self.__meshObj.vertex_groups.get("cam_vtx")
+            vg2.add([f[0], f[1], f[2]], 1.0, 'ADD')
 
     def __importVertexMorphs(self):
         pmxModel = self.__model

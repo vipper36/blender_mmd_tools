@@ -2,7 +2,7 @@
 
 import bpy
 from bpy.types import PropertyGroup
-from bpy.props import BoolProperty, EnumProperty, FloatProperty, FloatVectorProperty, IntProperty, StringProperty
+from bpy.props import BoolProperty, EnumProperty, FloatProperty, FloatVectorProperty, IntProperty, StringProperty, CollectionProperty
 
 from mmd_tools.core import material
 from mmd_tools.core.material import FnMaterial
@@ -68,12 +68,19 @@ def _setNameJ(prop, value):
 
     prop['name_j'] = prop_value
 
+
+class MMDVGForMaterial(bpy.types.PropertyGroup):
+    obj_name = bpy.props.StringProperty(name="Object Name", default="")
+    vg_name = bpy.props.StringProperty(name="Vertex Group Name", default="")
+
 #===========================================
 # Property classes
 #===========================================
 class MMDMaterial(PropertyGroup):
     """ マテリアル
     """
+    vgs = CollectionProperty(type=MMDVGForMaterial) # XXX: hack
+
     name_j = StringProperty(
         name='Name',
         description='Japanese Name',
