@@ -472,16 +472,38 @@ def mmd_tools_scene_init():
 	camera.rotation_mode = 'XYZ'
 	camera.rotation_euler = (1.5708, 0.0, 0.0)
 
-	tgt = bpy.data.objects.new( "Cam_Target", None )
+	tgt_data = bpy.data.meshes.new("Cam_Target")
+
+	tgt = bpy.data.objects.new( "Cam_Target", tgt_data )
 	active_scene.objects.link( tgt )
+
+
+	bpy.ops.object.select_all(action='DESELECT')
+	tgt.select = True
+	bpy.context.scene.objects.active = tgt
+
+	bpy.ops.object.mode_set(mode='EDIT')
+	bpy.ops.mesh.primitive_circle_add(vertices=64, radius=0.35, location=(0, 0, 0), rotation=(0, 0, 0))
+	bpy.ops.mesh.extrude_region()
+	bpy.ops.transform.resize(value=(0.75, 0.75, 0.75))
+	bpy.ops.mesh.primitive_circle_add(vertices=64, radius=0.2, location=(0, 0, 0), rotation=(0, 0, 0))
+	bpy.ops.mesh.edge_face_add()
+	bpy.ops.object.mode_set(mode='OBJECT')
+#	tgt.draw_type = 'SOLID'
+
+	tgt_mat = bpy.data.materials.new(name="mmd_tools Cam Target")
+	tgt_mat.use_shadeless = True
+	tgt_mat.diffuse_color = (0.929412, 0.0784314, 0.356863)
+	tgt_data.materials.append(tgt_mat)
+
 	tgt.parent = camera
 
-	tgt.rotation_euler = (-1.5708, 0.0, 0.0)
+	tgt.rotation_euler = (0.0, 0.0, 0.0)
 #	tgt.location = (0, 0, 10)
 	tgt.location = (0, 0, -45)
 
-	tgt.empty_draw_size = 1
-	tgt.empty_draw_type = 'CIRCLE'
+#	tgt.empty_draw_size = 1
+#	tgt.empty_draw_type = 'CIRCLE'
 
 #	tgt_look_at = tgt.constraints.new(type='TRACK_TO')
 #	tgt_look_at.target = bpy.context.scene.camera
@@ -494,8 +516,6 @@ def mmd_tools_scene_init():
 #	tgt_locc.owner_space = 'LOCAL'
 #	tgt_locc.use_offset = True
 
-	bpy.ops.object.select_all(action='DESELECT')
-	tgt.select = True
 
 	# Lock Camera to View like MMD
 	bpy.context.space_data.lock_camera = True
@@ -504,7 +524,10 @@ def mmd_tools_scene_init():
 	bpy.context.space_data.region_3d.view_camera_zoom = 1
 
 	tgt.select = False
+	camera.select = True
+	bpy.context.scene.objects.active = camera
 	tgt.hide_select = True
+	tgt.hide_render = True
 
 	# MMD-compat lamp
 	lamp_in = bpy.data.lamps.new(name="MMD_Lamp", type="SUN")
