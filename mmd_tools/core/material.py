@@ -273,16 +273,16 @@ class FnMaterial(object):
             #shared_toon_folder = addon_preferences('shared_toon_folder', '')
             #toon_path = os.path.join(shared_toon_folder, 'toon%02d.bmp'%(mmd_mat.shared_toon_texture+1))
             #self.create_toon_texture(bpy.path.resolve_ncase(path=toon_path))
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[6].default_value = mmd_mat.shared_toon_texture
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = mmd_mat.shared_toon_texture
         elif mmd_mat.toon_texture != '':
             slot = self.create_toon_texture(mmd_mat.toon_texture)
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[6].default_value = -1.0
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[8].default_value = 1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = -1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[9].default_value = 1.0
             mat.node_tree.nodes["Toon Tex"].texture = slot.texture
         else:
             self.remove_toon_texture()
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[6].default_value = -1.0
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[8].default_value = 0.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = -1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[9].default_value = 0.0
 
     def remove_toon_texture(self):
         self.__remove_texture(self.__TOON_TEX_SLOT)
@@ -341,8 +341,13 @@ class FnMaterial(object):
     def update_self_shadow(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        mat.use_shadows = mmd_mat.enabled_self_shadow
-        mat.use_transparent_shadows = mmd_mat.enabled_self_shadow
+        if mmd_mat.enabled_self_shadow:
+            mat.node_tree.nodes["Pure Mat"].material = bpy.data.materials["mmd_tools Node Base"]
+        else:
+            mat.node_tree.nodes["Pure Mat"].material = bpy.data.materials["mmd_tools Node Base NoShadow"]
+
+#        mat.use_shadows = mmd_mat.enabled_self_shadow
+#        mat.use_transparent_shadows = mmd_mat.enabled_self_shadow
 
     def update_enabled_toon_edge(self):
         mat = self.__material

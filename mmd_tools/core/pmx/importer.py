@@ -412,7 +412,7 @@ class PMXImporter:
             geon2.uv_layer = "UVMap.001"
 
             if i.is_shared_toon_texture:
-                ng.inputs[6].default_value = i.toon_texture
+                ng.inputs[7].default_value = i.toon_texture
             mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
 
 #            mat.alpha = i.diffuse[3]
@@ -468,7 +468,10 @@ class PMXImporter:
 
             pmatn = nodes.new("ShaderNodeExtendedMaterial")
             pmatn.name = "Pure Mat"
-            pmatn.material = bpy.data.materials["mmd_tools Node Base"]
+            if i.enabled_self_shadow:
+                pmatn.material = bpy.data.materials["mmd_tools Node Base"]
+            else:
+                pmatn.material = bpy.data.materials["mmd_tools Node Base NoShadow"]
             pmatn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
             pmatn.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
             pmatn.inputs[2].default_value = 1.0
@@ -480,6 +483,8 @@ class PMXImporter:
             pmatn.inputs[8].default_value = 0.0
             pmatn.inputs[9].default_value = 1.0
             pmatn.inputs[10].default_value = 0.0
+
+            mat.node_tree.links.new(ng.inputs[6], pmatn.outputs[0])
 
             lmatn = nodes.new("ShaderNodeExtendedMaterial")
             lmatn.name = "Lamp Data"
@@ -531,7 +536,7 @@ class PMXImporter:
             mat.node_tree.links.new(ttex_gn.inputs[0], ttexn.outputs[1])
             ttex_gn.inputs[1].default_value = 2.2 #???
 
-            mat.node_tree.links.new(ng.inputs[7], ttex_gn.outputs[0])
+            mat.node_tree.links.new(ng.inputs[8], ttex_gn.outputs[0])
 
             if i.is_shared_toon_texture:
                 mmd_mat.is_shared_toon_texture = True
@@ -542,11 +547,11 @@ class PMXImporter:
                 if i.toon_texture >= 0:
                     mmd_mat.toon_texture = self.__textureTable[i.toon_texture]
 #                    ttexn.texture = XXX
-                    ng.inputs[8].default_value = 1.0
+                    ng.inputs[9].default_value = 1.0
                 else:
                     mmd_mat.toon_texture = ''
 #                    ttexn.texture = None
-                    ng.inputs[8].default_value = 0.0
+                    ng.inputs[9].default_value = 0.0
             mmd_mat.comment = i.comment
 
             self.__materialFaceCountTable.append(int(i.vertex_count/3))

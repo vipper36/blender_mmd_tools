@@ -82,6 +82,9 @@ def mmd_tools_engine_shader_create():
 		return groups["mmd_tools_shader"]
 	mat = bpy.data.materials.new(name="mmd_tools Node Base")
 
+	mat_ns = bpy.data.materials.new(name="mmd_tools Node Base NoShadow")
+	mat_ns.use_shadows = False
+
 	# light color receiver hack!
 	l_mat = bpy.data.materials.new(name="mmd_tools Light Base")
 	l_mat.diffuse_shader = 'FRESNEL'
@@ -167,28 +170,9 @@ def mmd_tools_engine_shader_create():
 		{"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Tex Mul"],
 
 # TOON
-		["ShaderNodeExtendedMaterial", [
-			[1.0, 1.0, 1.0, 1.0],
-			[0.0, 0.0, 0.0, 1.0],
-			1.0,
-			[0.0, 0.0, 0.0],
-			[0.0, 0.0, 0.0, 1.0],
-			1.0,
-			0.0,
-			1.0,
-			0.0,
-			1.0,
-			0.0,
-		], {
-			"use_diffuse": True,
-			"use_specular": True,
-			"invert_normal": False,
-			"material": bpy.data.materials["mmd_tools Node Base"]},
-			"mmd_tools Pure Material"],
-
 		["ShaderNodeMixRGB",[
 			1.0,
-			["mmd_tools Pure Material", 3],
+			["mmd_tools Group Input", 6],
 			["mmd_tools Lamp Data", 3],
 		],
 		{"blend_type": "DIVIDE", "use_clamp": True}, "mmd_tools NL"],
@@ -213,40 +197,40 @@ def mmd_tools_engine_shader_create():
 		["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 6"],
 
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			-0.1, #XXX
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 1"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			0.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 2"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			1.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 3"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			2.9,
 		], {"operation": "GREATER_THAN"} , "mmd_tools Math 4"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			3.9,
 		], {"operation": "GREATER_THAN"} , "mmd_tools Math 5"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			4.9,
 		], {"operation": "GREATER_THAN"} , "mmd_tools Math 6"],
 		["ShaderNodeMath",[
-			["mmd_tools Group Input", 6],
+			["mmd_tools Group Input", 7],
 			5.9,
 		], {"operation": "GREATER_THAN"}, "mmd_tools Math 7"],
 
-		["ShaderNodeSeparateRGB", [["mmd_tools Group Input", 7]], None, "mmd_tools Placeholder 2"],
+		["ShaderNodeSeparateRGB", [["mmd_tools Group Input", 8]], None, "mmd_tools Placeholder 2"],
 
 		["ShaderNodeMixRGB",[
-			["mmd_tools Group Input", 8],
+			["mmd_tools Group Input", 9],
 			[1.0, 1.0, 1.0, 1.0], # checked
-			["mmd_tools Group Input", 7],
+			["mmd_tools Group Input", 8],
 		],
 		{"blend_type": "MIX", "use_clamp": True}, "mmd_tools ToonTex"],
 
@@ -283,7 +267,7 @@ def mmd_tools_engine_shader_create():
 		["ShaderNodeMixRGB",[
 			["mmd_tools Math 7", 0],
 			["mmd_tools Mix 6", 0],
-			["mmd_tools Pure Material", 0],
+			["mmd_tools NL", 0],
 		], None, "mmd_tools Mix 7"],
 
 		["ShaderNodeMixRGB",[
@@ -386,12 +370,14 @@ def mmd_tools_engine_shader_create():
 	shader.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
 	shader.inputs[5].name = "Tex"
 	shader.inputs[5].default_value = [1.0, 1.0, 1.0, 1.0]
-	shader.inputs[6].name = "Toon"
-	shader.inputs[6].default_value = 0.0
-	shader.inputs[7].name = "ToonTex"
-	shader.inputs[7].default_value = [1.0, 1.0, 1.0, 1.0]
-	shader.inputs[8].name = "UseToonTex"
-	shader.inputs[8].default_value = 0.0
+	shader.inputs[6].name = "Pure Mat"
+	shader.inputs[6].default_value = [1.0, 1.0, 1.0, 1.0]
+	shader.inputs[7].name = "Toon"
+	shader.inputs[7].default_value = 0.0
+	shader.inputs[8].name = "ToonTex"
+	shader.inputs[8].default_value = [1.0, 1.0, 1.0, 1.0]
+	shader.inputs[9].name = "UseToonTex"
+	shader.inputs[9].default_value = 0.0
 
 	return shader
 
