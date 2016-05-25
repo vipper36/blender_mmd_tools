@@ -443,19 +443,6 @@ def mmd_tools_scene_init():
 	active_scene.render.resolution_percentage = 100
 
 	# mmd compat camera
-	tgt = bpy.data.objects.new( "Cam_Target", None )
-	active_scene.objects.link( tgt )
-
-	tgt.location = (0, 0, 10)
-
-	tgt.empty_draw_size = 1
-	tgt.empty_draw_type = 'CIRCLE'
-	tgt.hide_select = True
-
-#	tgt_look_at = tgt.constraints.new(type='TRACK_TO')
-#	tgt_look_at.target = bpy.context.scene.camera
-#	tgt_look_at.up_axis = 'UP_X'
-#	tgt_look_at.track_axis = 'TRACK_Y'
 
 	# TODO: prevent dup setting
 
@@ -465,12 +452,11 @@ def mmd_tools_scene_init():
 		camera = bpy.data.objects.new("Camera", camera_in)
 		active_scene.objects.link(camera)
 
-	camera.location = (0, -45, 10)
 
-	camera_look_at = camera.constraints.new(type='TRACK_TO')
-	camera_look_at.target = tgt
-	camera_look_at.up_axis = 'UP_Y'
-	camera_look_at.track_axis = 'TRACK_NEGATIVE_Z'
+#	camera_look_at = camera.constraints.new(type='TRACK_TO')
+#	camera_look_at.target = tgt
+#	camera_look_at.up_axis = 'UP_Y'
+#	camera_look_at.track_axis = 'TRACK_NEGATIVE_Z'
 
 	# set 30 degree short-side FOV
 	# TODO: not good for portrait
@@ -482,11 +468,43 @@ def mmd_tools_scene_init():
 
 	camera.data.passepartout_alpha = 1 # just for style
 
+	camera.location = (0, -45, 10)
+	camera.rotation_mode = 'XYZ'
+	camera.rotation_euler = (1.5708, 0.0, 0.0)
+
+	tgt = bpy.data.objects.new( "Cam_Target", None )
+	active_scene.objects.link( tgt )
+	tgt.parent = camera
+
+	tgt.rotation_euler = (-1.5708, 0.0, 0.0)
+#	tgt.location = (0, 0, 10)
+	tgt.location = (0, 0, -45)
+
+	tgt.empty_draw_size = 1
+	tgt.empty_draw_type = 'CIRCLE'
+
+#	tgt_look_at = tgt.constraints.new(type='TRACK_TO')
+#	tgt_look_at.target = bpy.context.scene.camera
+#	tgt_look_at.up_axis = 'UP_X'
+#	tgt_look_at.track_axis = 'TRACK_Y'
+
+#	tgt_locc = tgt.constraints.new(type='COPY_LOCATION')
+#	tgt_locc.target = camera
+#	tgt_locc.target_space = 'LOCAL'
+#	tgt_locc.owner_space = 'LOCAL'
+#	tgt_locc.use_offset = True
+
+	bpy.ops.object.select_all(action='DESELECT')
+	tgt.select = True
+
 	# Lock Camera to View like MMD
 	bpy.context.space_data.lock_camera = True
 	if bpy.context.space_data.region_3d.view_perspective != "CAMERA":
 		bpy.ops.view3d.viewnumpad(type='CAMERA', align_active=False)
 	bpy.context.space_data.region_3d.view_camera_zoom = 1
+
+	tgt.select = False
+	tgt.hide_select = True
 
 	# MMD-compat lamp
 	lamp_in = bpy.data.lamps.new(name="MMD_Lamp", type="SUN")
@@ -496,6 +514,7 @@ def mmd_tools_scene_init():
 	lamp = bpy.data.objects.new(name="MMD_Lamp", object_data=lamp_in)
 	lamp.location = (0.5, -0.5, 1.0)
 	active_scene.objects.link(lamp)
+	lamp.hide = True
 
 	lamp_tgt = bpy.data.objects.new( "LAMP_Target", None )
 	active_scene.objects.link( lamp_tgt )
