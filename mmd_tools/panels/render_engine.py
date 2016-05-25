@@ -84,6 +84,7 @@ def mmd_tools_engine_shader_create():
 
 	mat_ns = bpy.data.materials.new(name="mmd_tools Node Base NoShadow")
 	mat_ns.use_shadows = False
+	mat_ns.use_transparent_shadows = False
 
 	# light color receiver hack!
 	l_mat = bpy.data.materials.new(name="mmd_tools Light Base")
