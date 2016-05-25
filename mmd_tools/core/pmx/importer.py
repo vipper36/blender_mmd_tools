@@ -381,16 +381,18 @@ class PMXImporter:
             ng.name = "mmd_tools_shader"
             ng.node_tree = bpy.data.node_groups["mmd_tools_shader"]
             ng.inputs[0].default_value = i.diffuse[0:3] + [1.0]
-            ng.inputs[1].default_value = i.specular + [1.0]
-            ng.inputs[3].default_value = i.ambient + [1.0]
+            ng.inputs[1].default_value = i.shininess
+            ng.inputs[2].default_value = i.specular + [1.0]
+            ng.inputs[4].default_value = i.ambient + [1.0]
 
             mat_spw = bpy.data.materials.new(name=i.name+".spw")
             mat_spw.diffuse_color = (0.0, 0.0, 0.0)
             mat_spw.diffuse_intensity = 0.0
             mat_spw.specular_color = (1.0, 1.0, 1.0)
             mat_spw.specular_hardness = i.shininess
+            mat_spw.specular_shader = 'PHONG'
             if i.shininess > 0:
-                mat_spw.specular_intensity = 0.2 # why?
+                mat_spw.specular_intensity = 1.0
             else:
                 mat_spw.specular_intensity = 0
 
@@ -398,7 +400,7 @@ class PMXImporter:
             spwn.name = "Spec Weight"
             spwn.use_diffuse = False
             spwn.material = mat_spw
-            mat.node_tree.links.new(ng.inputs[2], spwn.outputs[4])
+            mat.node_tree.links.new(ng.inputs[3], spwn.outputs[4])
 
             geon = nodes.new("ShaderNodeGeometry")
             geon.name = "Geo"
@@ -408,7 +410,7 @@ class PMXImporter:
             geon2.uv_layer = "UVMap.001"
 
             if i.is_shared_toon_texture:
-                ng.inputs[5].default_value = i.toon_texture
+                ng.inputs[6].default_value = i.toon_texture
             mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
 
 #            mat.alpha = i.diffuse[3]
@@ -477,25 +479,57 @@ class PMXImporter:
             pmatn.inputs[9].default_value = 1.0
             pmatn.inputs[10].default_value = 0.0
 
+            lmatn = nodes.new("ShaderNodeExtendedMaterial")
+            lmatn.name = "Lamp Data"
+
+            lmatn.use_diffuse = True
+            lmatn.use_specular = False
+            lmatn.material = bpy.data.materials["mmd_tools Light Base"]
+            lmatn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+            lmatn.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+            lmatn.inputs[2].default_value = 1.0
+            lmatn.inputs[3].default_value = [0.0, 0.0, 0.0]
+            lmatn.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
+            lmatn.inputs[5].default_value = 1.0
+            lmatn.inputs[6].default_value = 0.0
+            lmatn.inputs[7].default_value = 1.0
+            lmatn.inputs[8].default_value = 0.0
+            lmatn.inputs[9].default_value = 1.0
+            lmatn.inputs[10].default_value = 0.0
+
+            lnn = nodes.new("ShaderNodeMixRGB")
+            lnn.name = "LN"
+            lnn.blend_type = "DIVIDE"
+            lnn.inputs[0].default_value = 1.0
+            mat.node_tree.links.new(lnn.inputs[1], pmatn.outputs[3])
+            mat.node_tree.links.new(lnn.inputs[2], lmatn.outputs[3])
+
             tvecn = nodes.new("ShaderNodeMixRGB")
             tvecn.name = "Toon Vec Pre"
-            tvecn.blend_type = "MULTIPLY"
+            tvecn.blend_type = "SUBTRACT"
             tvecn.inputs[0].default_value = 1.0
-            mat.node_tree.links.new(tvecn.inputs[1], pmatn.outputs[0])
-            tvecn.inputs[2].default_value = [0.0, 1.0, 0.0, 0.0]
+            tvecn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+            mat.node_tree.links.new(tvecn.inputs[2], lnn.outputs[0])
 
             tvecn2 = nodes.new("ShaderNodeMixRGB")
             tvecn2.name = "Toon Vec"
-            tvecn2.blend_type = "SUBTRACT"
+            tvecn2.blend_type = "MULTIPLY"
             tvecn2.inputs[0].default_value = 1.0
             mat.node_tree.links.new(tvecn2.inputs[1], tvecn.outputs[0])
-            tvecn2.inputs[2].default_value = [0.0, 0.5, 0.0, 0.0]
+            tvecn2.inputs[2].default_value = [0.0, 1.0, 0.0, 1.0]
 
             ttexn = nodes.new("ShaderNodeTexture")
             ttexn.name = "Toon Tex"
+            # XXX: seems not working for BI
             mat.node_tree.links.new(ttexn.inputs[0], tvecn2.outputs[0])
 
-            mat.node_tree.links.new(ng.inputs[6], ttexn.outputs[1])
+
+            ttex_gn = nodes.new("ShaderNodeGamma")
+            ttex_gn.name = "Gamma Toon Tex"
+            mat.node_tree.links.new(ttex_gn.inputs[0], ttexn.outputs[1])
+            ttex_gn.inputs[1].default_value = 2.2 #???
+
+            mat.node_tree.links.new(ng.inputs[7], ttex_gn.outputs[0])
 
             if i.is_shared_toon_texture:
                 mmd_mat.is_shared_toon_texture = True
@@ -506,11 +540,11 @@ class PMXImporter:
                 if i.toon_texture >= 0:
                     mmd_mat.toon_texture = self.__textureTable[i.toon_texture]
 #                    ttexn.texture = XXX
-                    ng.inputs[7].default_value = 1.0
+                    ng.inputs[8].default_value = 1.0
                 else:
                     mmd_mat.toon_texture = ''
 #                    ttexn.texture = None
-                    ng.inputs[7].default_value = 0.0
+                    ng.inputs[8].default_value = 0.0
             mmd_mat.comment = i.comment
 
             self.__materialFaceCountTable.append(int(i.vertex_count/3))
@@ -521,22 +555,33 @@ class PMXImporter:
             texn.name = "Tex"
             mat.node_tree.links.new(texn.inputs[0], geon.outputs[4]) # UV
 
+            tex_gn = nodes.new("ShaderNodeGamma")
+            tex_gn.name = "Gamma Tex"
+            mat.node_tree.links.new(tex_gn.inputs[0], texn.outputs[1])
+            tex_gn.inputs[1].default_value = 1.0 #???
+
             utex = nodes.new("ShaderNodeMixRGB")
             utex.name = "Use Tex"
             utex.blend_type = "MIX"
             utex.inputs[0].default_value = 0.0
             utex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-            mat.node_tree.links.new(utex.inputs[2], texn.outputs[1])
+            mat.node_tree.links.new(utex.inputs[2], tex_gn.outputs[0])
+
 
             stexn = nodes.new("ShaderNodeTexture")
             stexn.name = "Sphere Tex"
+
+            stex_gn = nodes.new("ShaderNodeGamma")
+            stex_gn.name = "Gamma Sphere Tex"
+            mat.node_tree.links.new(stex_gn.inputs[0], stexn.outputs[1])
+            stex_gn.inputs[1].default_value = 1.0 #???
 
             ustex = nodes.new("ShaderNodeMixRGB")
             ustex.name = "Use Sphere Tex"
             ustex.blend_type = "MIX"
             ustex.inputs[0].default_value = 0.0
             ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-            mat.node_tree.links.new(ustex.inputs[2], stexn.outputs[1])
+            mat.node_tree.links.new(ustex.inputs[2], stex_gn.outputs[0])
 
             mixtex = nodes.new("ShaderNodeMixRGB")
             mixtex.name = "Mix Tex"
@@ -545,7 +590,7 @@ class PMXImporter:
             mat.node_tree.links.new(mixtex.inputs[1], utex.outputs[0])
             mat.node_tree.links.new(mixtex.inputs[2], ustex.outputs[0])
 
-            mat.node_tree.links.new(ng.inputs[4], mixtex.outputs[0])
+            mat.node_tree.links.new(ng.inputs[5], mixtex.outputs[0])
 
             if i.texture != -1:
                 texture_slot = fnMat.create_texture(self.__textureTable[i.texture])

@@ -273,16 +273,16 @@ class FnMaterial(object):
             #shared_toon_folder = addon_preferences('shared_toon_folder', '')
             #toon_path = os.path.join(shared_toon_folder, 'toon%02d.bmp'%(mmd_mat.shared_toon_texture+1))
             #self.create_toon_texture(bpy.path.resolve_ncase(path=toon_path))
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = mmd_mat.shared_toon_texture
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[6].default_value = mmd_mat.shared_toon_texture
         elif mmd_mat.toon_texture != '':
             slot = self.create_toon_texture(mmd_mat.toon_texture)
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = -1.0
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = 1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[6].default_value = -1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[8].default_value = 1.0
             mat.node_tree.nodes["Toon Tex"].texture = slot.texture
         else:
             self.remove_toon_texture()
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[5].default_value = -1.0
-            mat.node_tree.nodes["mmd_tools_shader"].inputs[7].default_value = 0.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[6].default_value = -1.0
+            mat.node_tree.nodes["mmd_tools_shader"].inputs[8].default_value = 0.0
 
     def remove_toon_texture(self):
         self.__remove_texture(self.__TOON_TEX_SLOT)
@@ -290,7 +290,7 @@ class FnMaterial(object):
     def update_ambient_color(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        mat.node_tree.nodes["mmd_tools_shader"].inputs[3].default_value = list(mmd_mat.ambient_color) + [1.0]
+        mat.node_tree.nodes["mmd_tools_shader"].inputs[4].default_value = list(mmd_mat.ambient_color) + [1.0]
 
     def update_diffuse_color(self):
         mat = self.__material
@@ -306,7 +306,7 @@ class FnMaterial(object):
     def update_specular_color(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        mat.node_tree.nodes["mmd_tools_shader"].inputs[1].default_value = list(mmd_mat.specular_color) + [1.0]
+        mat.node_tree.nodes["mmd_tools_shader"].inputs[2].default_value = list(mmd_mat.specular_color) + [1.0]
 
     def update_shininess(self):
         mat = self.__material
@@ -314,8 +314,9 @@ class FnMaterial(object):
         shininess = mmd_mat.shininess
         spw_mat = mat.node_tree.nodes["Spec Weight"].material
         spw_mat.specular_hardness = shininess
+        mat.node_tree.nodes["mmd_tools_shader"].inputs[1].default_value = shininess
         if shininess > 0:
-            spw_mat.specular_intensity = 0.2 # why?
+            spw_mat.specular_intensity = 1.0
         else:
             spw_mat.specular_intensity = 0
 
