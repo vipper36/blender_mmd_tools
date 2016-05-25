@@ -69,7 +69,7 @@ class PMXImporter:
         count = 0
         for i, c in enumerate(self.__materialFaceCountTable):
             if face_index < count + c:
-                return i
+                return i*2
             count += c
         raise Exception('invalid face index.')
 
@@ -549,6 +549,7 @@ class PMXImporter:
 
             self.__materialFaceCountTable.append(int(i.vertex_count/3))
             self.__meshObj.data.materials.append(mat)
+
             fnMat = FnMaterial(mat)
 
             texn = nodes.new("ShaderNodeTexture")
@@ -623,6 +624,44 @@ class PMXImporter:
                 texture_slot = fnMat.create_sphere_texture(self.__textureTable[i.sphere_texture])
                 stexn.texture = texture_slot.texture
 #                texture_slot.diffuse_color_factor = amount
+
+            edge_base_mat = bpy.data.materials.new(name=i.name + ".edge.base")
+            edge_base_mat.use_shadeless = True
+#            edge_base_mat.translucency = 1.0
+
+            edge_mat = bpy.data.materials.new(name=i.name + ".edge")
+            edge_mat.use_nodes = True
+            edge_mat.use_transparency = True
+            nodes = edge_mat.node_tree.nodes
+
+            edge_bn = nodes.new("ShaderNodeMaterial")
+            edge_bn.name = "Edge Base"
+            edge_bn.material = edge_base_mat
+            edge_bn.inputs[0].default_value = i.edge_color[0:3] + [1.0]
+
+            edge_mat.node_tree.links.new(nodes["Output"].inputs[0], edge_bn.outputs[0])
+
+            edge_geon = nodes.new("ShaderNodeGeometry")
+            edge_geon.name = "Geo"
+
+            use_edge_n = nodes.new("ShaderNodeMath")
+            use_edge_n.name = "Edge Alpha"
+            use_edge_n.inputs[0].default_value = float(i.enabled_toon_edge) * i.edge_color[3]
+            edge_mat.node_tree.links.new(use_edge_n.inputs[1], edge_geon.outputs[8])
+            use_edge_n.operation = "MULTIPLY"
+
+            edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
+
+            self.__meshObj.data.materials.append(edge_mat)
+
+        edge_mod = self.__meshObj.modifiers.new(name='Edge Solidify', type='SOLIDIFY')
+        edge_mod.offset = 1.0
+        edge_mod.thickness = 0.025
+        edge_mod.thickness_clamp = 0
+        edge_mod.use_rim = False
+        edge_mod.material_offset = 1
+        edge_mod.use_flip_normals = True
+
 
     def __importFaces(self):
         pmxModel = self.__model

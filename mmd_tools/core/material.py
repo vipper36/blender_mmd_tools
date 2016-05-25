@@ -346,18 +346,24 @@ class FnMaterial(object):
 
     def update_enabled_toon_edge(self):
         mat = self.__material
-        if not hasattr(mat, 'line_color'): # freestyle line color
-            return
+        edge_mat = bpy.data.materials[mat.name + ".edge"]
+#        if not hasattr(mat, 'line_color'): # freestyle line color
+#            return
         mmd_mat = mat.mmd_material
-        mat.line_color[3] = min(int(mmd_mat.enabled_toon_edge), mmd_mat.edge_color[3])
+        edge_mat.node_tree.nodes["Edge Alpha"].inputs[0].default_value = float(mmd_mat.enabled_toon_edge) * mmd_mat.edge_color[3]
+
+#        mat.line_color[3] = min(int(mmd_mat.enabled_toon_edge), mmd_mat.edge_color[3])
 
     def update_edge_color(self):
         mat = self.__material
-        if not hasattr(mat, 'line_color'): # freestyle line color
-            return
+        edge_mat = bpy.data.materials[mat.name + ".edge"]
+#        if not hasattr(mat, 'line_color'): # freestyle line color
+#            return
         mmd_mat = mat.mmd_material
-        r, g, b, a = mmd_mat.edge_color
-        mat.line_color = [r, g, b, min(int(mmd_mat.enabled_toon_edge), a)]
+        edge_mat.node_tree.nodes["Edge Base"].inputs[0].default_value = list(mmd_mat.edge_color)[0:3] + [1.0]
+        edge_mat.node_tree.nodes["Edge Alpha"].inputs[0].default_value =float(mmd_mat.enabled_toon_edge) * mmd_mat.edge_color[3]
+#        r, g, b, a = mmd_mat.edge_color
+#        mat.line_color = [r, g, b, min(int(mmd_mat.enabled_toon_edge), a)]
 
     def update_edge_weight(self):
         pass
