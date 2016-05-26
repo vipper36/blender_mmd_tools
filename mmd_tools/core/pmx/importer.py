@@ -511,23 +511,22 @@ class PMXImporter:
             mat.node_tree.links.new(lnn.inputs[1], pmatn.outputs[3])
             mat.node_tree.links.new(lnn.inputs[2], lmatn.outputs[3])
 
-            tvecn = nodes.new("ShaderNodeMixRGB")
-            tvecn.name = "Toon Vec Pre"
-            tvecn.blend_type = "SUBTRACT"
-            tvecn.inputs[0].default_value = 1.0
-            tvecn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-            mat.node_tree.links.new(tvecn.inputs[2], lnn.outputs[0])
+#            tvecn = nodes.new("ShaderNodeMixRGB")
+#            tvecn.name = "Toon Vec Pre"
+#            tvecn.blend_type = "SUBTRACT"
+#            tvecn.inputs[0].default_value = 1.0
+#            tvecn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+#            mat.node_tree.links.new(tvecn.inputs[2], lnn.outputs[0])
 
             tvecn2 = nodes.new("ShaderNodeMixRGB")
             tvecn2.name = "Toon Vec"
             tvecn2.blend_type = "MULTIPLY"
             tvecn2.inputs[0].default_value = 1.0
-            mat.node_tree.links.new(tvecn2.inputs[1], tvecn.outputs[0])
+            mat.node_tree.links.new(tvecn2.inputs[1], lnn.outputs[0])
             tvecn2.inputs[2].default_value = [0.0, 1.0, 0.0, 1.0]
 
             ttexn = nodes.new("ShaderNodeTexture")
             ttexn.name = "Toon Tex"
-            # XXX: seems not working for BI
             mat.node_tree.links.new(ttexn.inputs[0], tvecn2.outputs[0])
 
 
