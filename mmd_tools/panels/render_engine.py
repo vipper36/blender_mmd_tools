@@ -523,13 +523,13 @@ def mmd_tools_scene_init():
 	lamp_in.energy = 1.0
 	lamp_in.shadow_method = 'RAY_SHADOW'
 	lamp = bpy.data.objects.new(name="MMD_Lamp", object_data=lamp_in)
-	lamp.location = (0.5, -0.5, 1.0)
+	lamp.location = (0.0, 0.0, 0.0)
 	active_scene.objects.link(lamp)
 	lamp.hide = True
 
 	lamp_tgt = bpy.data.objects.new( "LAMP_Target", None )
 	active_scene.objects.link( lamp_tgt )
-	lamp_tgt.location = (0, 0, 0)
+	lamp_tgt.location = (0, 0, 0) # (0.5, -0.5, 1.0)
 	lamp_tgt.hide_select = True
 	lamp_tgt.hide = True
 	lamp_tgt.hide_render = True
@@ -539,17 +539,72 @@ def mmd_tools_scene_init():
 	lamp_look_at.up_axis = 'UP_X'
 	lamp_look_at.track_axis = 'TRACK_NEGATIVE_Z'
 
-	shadow_catcher_mat = bpy.data.materials.new(name="mmd_tools Shadow Catcher")
-	shadow_catcher_mat.use_only_shadow = True
-	shadow_catcher_mat.shadow_only_type = 'SHADOW_ONLY'
+	# for Underground
+	lamp_ug_in = bpy.data.lamps.new(name="MMD_Lamp_UG", type="SPOT")
+#	lamp_ug_in.color = (0.3, 0.3, 0.3) # not working?
+	lamp_ug_in.energy = 1.0
+	lamp_ug_in.falloff_type = 'CONSTANT'
+	lamp_ug_in.shadow_method = 'BUFFER_SHADOW'
+	lamp_ug_in.use_only_shadow = True
+	lamp_ug_in.shadow_color = (1.0, 1.0, 1.0) # important
+#	lamp_ug_in.shadow_buffer_type = 'HALFWAY'
+#	lamp_ug_in.shadow_sample_buffers = 'BUFFERS_4'
+#	lamp_ug_in.shadow_buffer_size = 1024
+	lamp_ug_in.shadow_buffer_type = 'IRREGULAR' # ???
+	lamp_ug_in.shadow_buffer_bias = 0.1 # ???
+	lamp_ug_in.use_auto_clip_start = True
+	lamp_ug_in.shadow_buffer_clip_end = 9999
+	lamp_ug_in.spot_size = 0.0349066 # 2d
+	lamp_ug_in.spot_blend = 0
+	lamp_ug = bpy.data.objects.new(name="MMD_Lamp_UG", object_data=lamp_ug_in)
 
-	# XXX: I have no idea if this is good or bad.
+	active_scene.objects.link(lamp_ug)
+	lamp_ug.parent = lamp
+	lamp_ug.location = (0.0, 0.0, 4999.0) #(0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
+
+	lamp_ug_look_at = lamp_ug.constraints.new(type='TRACK_TO')
+	lamp_ug_look_at.target = lamp_tgt
+	lamp_ug_look_at.up_axis = 'UP_X'
+	lamp_ug_look_at.track_axis = 'TRACK_NEGATIVE_Z'
+
+	lamp_ug.hide = True
+
+	lamp.location = (0.5, -0.5, 1.0)
+#	lamp_ug.location = (0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
+
+	lamp_group = bpy.data.groups.new("MMD_Lamp_UG")
+	lamp_group.objects.link(lamp_ug)
+
+	shadow_catcher_mat_base = bpy.data.materials.new(name="mmd_tools Shadow Catcher Base")
+	shadow_catcher_mat_base.use_only_shadow = True
+	shadow_catcher_mat_base.use_shadows = True
+	shadow_catcher_mat_base.use_transparent_shadows = True # ???
+	shadow_catcher_mat_base.shadow_only_type = 'SHADOW_ONLY'
+	shadow_catcher_mat_base.light_group = lamp_group
+
+	shadow_catcher_mat = bpy.data.materials.new(name="mmd_tools Shadow Catcher")
+	shadow_catcher_mat.use_nodes = True
 	shadow_catcher_mat.use_transparency = True
-	shadow_catcher_mat.alpha = 0.3
+	nodes = shadow_catcher_mat.node_tree.nodes
+	nodes["Material"].material = shadow_catcher_mat_base
+	nodes["Material"].inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+	nodes["Material"].inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+	nodes["Material"].inputs[2].default_value = 1.0
+	nodes["Material"].inputs[3].default_value = [0.0, 0.0, 0.0]
+	nodes["Material"].use_specular = False
+
+	cmn = nodes.new("ShaderNodeMixRGB")
+	shadow_catcher_mat.node_tree.links.new(cmn.inputs[0], nodes["Material"].outputs[1])
+	cmn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+	cmn.inputs[2].default_value = [0.7, 0.7, 0.7, 1.0] # why?
+	cmn.blend_type = 'MULTIPLY'
+	shadow_catcher_mat.node_tree.links.new(nodes["Output"].inputs[0], cmn.outputs[0])
+	shadow_catcher_mat.node_tree.links.new(nodes["Output"].inputs[1], nodes["Material"].outputs[1])
 
 	shadow_catcher_in = bpy.data.meshes.new("Shadow_Catcher_Mesh")
 
-	verts = [(-50.0, 50.0, 0.0), (-50.0, -50.0, 0.0), (50.0, -50.0, 0.0), (50.0, 50.0, 0.0)]
+#	verts = [(-50.0, 50.0, 0.0), (-50.0, -50.0, 0.0), (50.0, -50.0, 0.0), (50.0, 50.0, 0.0)]
+	verts = [(-500.0, 500.0, 0.0), (-500.0, -500.0, 0.0), (500.0, -500.0, 0.0), (500.0, 500.0, 0.0)]
 	shadow_catcher_in.from_pydata(verts, [], [[0,1,2,3]])
 	shadow_catcher_in.update(calc_edges=True)
 	shadow_catcher_in.materials.append(shadow_catcher_mat)

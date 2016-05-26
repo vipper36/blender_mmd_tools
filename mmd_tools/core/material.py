@@ -327,16 +327,16 @@ class FnMaterial(object):
 #        mat.game_settings.use_backface_culling = not mmd_mat.is_double_sided
 
     def update_drop_shadow(self):
-        pass
+        mat = self.__material
+        mmd_mat = mat.mmd_material
+        mat.use_cast_shadows = mmd_mat.enabled_self_shadow_map or mmd_mat.enabled_drop_shadow
+        mat.use_cast_buffer_shadows = mmd_mat.enabled_drop_shadow
 
     def update_self_shadow_map(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        mat.use_cast_buffer_shadows = mmd_mat.enabled_self_shadow_map # only buffer shadows
-        if hasattr(mat, 'use_cast_shadows'):
-            # "use_cast_shadows" is not supported in older Blender (< 2.71),
-            # so we still use "use_cast_buffer_shadows".
-            mat.use_cast_shadows = mmd_mat.enabled_self_shadow_map
+        mat.use_cast_shadows = mmd_mat.enabled_self_shadow_map or mmd_mat.enabled_drop_shadow
+        mat.use_raytrace = mmd_mat.enabled_self_shadow_map
 
     def update_self_shadow(self):
         mat = self.__material

@@ -466,6 +466,10 @@ class PMXImporter:
             mmd_mat.edge_weight = i.edge_size
             mmd_mat.sphere_texture_type = str(i.sphere_texture_mode)
 
+            mat.use_cast_buffer_shadows = i.enabled_drop_shadow
+            mat.use_cast_shadows = i.enabled_self_shadow_map or i.enabled_drop_shadow
+            mat.use_raytrace = i.enabled_self_shadow_map
+
             pmatn = nodes.new("ShaderNodeExtendedMaterial")
             pmatn.name = "Pure Mat"
             if i.enabled_self_shadow:
