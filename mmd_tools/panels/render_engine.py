@@ -539,41 +539,41 @@ def mmd_tools_scene_init():
 	lamp_look_at.up_axis = 'UP_X'
 	lamp_look_at.track_axis = 'TRACK_NEGATIVE_Z'
 
-	# for Underground
-	lamp_ug_in = bpy.data.lamps.new(name="MMD_Lamp_UG", type="SPOT")
-#	lamp_ug_in.color = (0.3, 0.3, 0.3) # not working?
-	lamp_ug_in.energy = 1.0
-	lamp_ug_in.falloff_type = 'CONSTANT'
-	lamp_ug_in.shadow_method = 'BUFFER_SHADOW'
-	lamp_ug_in.use_only_shadow = True
-	lamp_ug_in.shadow_color = (1.0, 1.0, 1.0) # important
-#	lamp_ug_in.shadow_buffer_type = 'HALFWAY'
-#	lamp_ug_in.shadow_sample_buffers = 'BUFFERS_4'
-#	lamp_ug_in.shadow_buffer_size = 1024
-	lamp_ug_in.shadow_buffer_type = 'IRREGULAR' # ???
-	lamp_ug_in.shadow_buffer_bias = 0.1 # ???
-	lamp_ug_in.use_auto_clip_start = True
-	lamp_ug_in.shadow_buffer_clip_end = 9999
-	lamp_ug_in.spot_size = 0.0349066 # 2d
-	lamp_ug_in.spot_blend = 0
-	lamp_ug = bpy.data.objects.new(name="MMD_Lamp_UG", object_data=lamp_ug_in)
+	# for ground
+	glamp_in = bpy.data.lamps.new(name="MMD_Lamp_Ground", type="SPOT")
+#	glamp_in.color = (0.3, 0.3, 0.3) # not working?
+	glamp_in.energy = 1.0
+	glamp_in.falloff_type = 'CONSTANT'
+	glamp_in.shadow_method = 'BUFFER_SHADOW'
+	glamp_in.use_only_shadow = True
+	glamp_in.shadow_color = (1.0, 1.0, 1.0) # important
+#	glamp_in.shadow_buffer_type = 'HALFWAY'
+#	glamp_in.shadow_sample_buffers = 'BUFFERS_4'
+#	glamp_in.shadow_buffer_size = 1024
+	glamp_in.shadow_buffer_type = 'IRREGULAR' # ???
+	glamp_in.shadow_buffer_bias = 0.1 # ???
+	glamp_in.use_auto_clip_start = True
+	glamp_in.shadow_buffer_clip_end = 9999
+	glamp_in.spot_size = 0.0349066 # 2d
+	glamp_in.spot_blend = 0
+	glamp = bpy.data.objects.new(name="MMD_Lamp_Ground", object_data=glamp_in)
 
-	active_scene.objects.link(lamp_ug)
-	lamp_ug.parent = lamp
-	lamp_ug.location = (0.0, 0.0, 4999.0) #(0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
+	active_scene.objects.link(glamp)
+	glamp.parent = lamp
+	glamp.location = (0.0, 0.0, 4999.0) #(0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
 
-	lamp_ug_look_at = lamp_ug.constraints.new(type='TRACK_TO')
-	lamp_ug_look_at.target = lamp_tgt
-	lamp_ug_look_at.up_axis = 'UP_X'
-	lamp_ug_look_at.track_axis = 'TRACK_NEGATIVE_Z'
+	glamp_look_at = glamp.constraints.new(type='TRACK_TO')
+	glamp_look_at.target = lamp_tgt
+	glamp_look_at.up_axis = 'UP_X'
+	glamp_look_at.track_axis = 'TRACK_NEGATIVE_Z'
 
-	lamp_ug.hide = True
+	glamp.hide = True
 
 	lamp.location = (0.5, -0.5, 1.0)
-#	lamp_ug.location = (0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
+#	glamp.location = (0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
 
-	lamp_group = bpy.data.groups.new("MMD_Lamp_UG")
-	lamp_group.objects.link(lamp_ug)
+	lamp_group = bpy.data.groups.new("MMD_Lamp_Ground")
+	lamp_group.objects.link(glamp)
 
 	shadow_catcher_mat_base = bpy.data.materials.new(name="mmd_tools Shadow Catcher Base")
 	shadow_catcher_mat_base.use_only_shadow = True
