@@ -14,7 +14,7 @@ class MMDMaterialPanel(Panel):
     @classmethod
     def poll(cls, context):
         material = context.active_object.active_material
-        return material and material.mmd_material
+        return material and material.mmd_material and not material.name.endswith(".edge")
 
     def draw(self, context):
         material = context.active_object.active_material
@@ -76,7 +76,7 @@ class MMDTexturePanel(Panel):
     @classmethod
     def poll(cls, context):
         material = context.active_object.active_material
-        return material and material.mmd_material
+        return material and material.mmd_material and not material.name.endswith(".edge")
 
     def draw(self, context):
         material = context.active_object.active_material

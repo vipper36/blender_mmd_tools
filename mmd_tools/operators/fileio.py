@@ -83,6 +83,10 @@ class ImportPmx(Operator, ImportHelper):
     log_level = bpy.props.EnumProperty(items=LOG_LEVEL_ITEMS, name='Log level', default='DEBUG')
     save_log = bpy.props.BoolProperty(name='Create a log file', default=False)
 
+    @classmethod
+    def poll(cls, context):
+        return ("Shadow_Catcher" in bpy.data.objects)
+
     def execute(self, context):
         logger = logging.getLogger()
         logger.setLevel(self.log_level)
