@@ -82,6 +82,10 @@ class __PmxExporter:
         # export vertices
         for mat_name, mat_meshes in mat_map.items():
             face_count = 0
+
+            if mat_name.endswith(".edge"):
+                continue
+
             for mat_faces, vertex_group_names in mat_meshes:
                 mesh_vertices = []
                 for face in mat_faces:
