@@ -48,7 +48,7 @@ __properties = {
 
 @persistent
 def mmd_material_scene_update(scene):
-    if bpy.context.object and bpy.context.object.active_material and \
+    if hasattr(bpy.context, "object") and bpy.context.object and bpy.context.object.active_material and \
        bpy.context.object.active_material.is_updated and \
        bpy.context.scene.render.engine == 'mmd_tools_engine':
         ob = bpy.context.object
