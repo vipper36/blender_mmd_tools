@@ -178,20 +178,17 @@ class MMDMaterialNew(bpy.types.Operator):
     def execute(self, context):
         slot = context.material_slot
         ob = context.object
-        bpy.ops.material.new()
 
 # already handled by mmd_material_scene_update
-#        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
-#            old_edge_mat = ob.material_slots[bpy.context.object.active_material_index+1].material
-#            new_edge_mat = None
-#            if old_edge_mat:
-#                new_edge_mat = bpy.data.materials.new(old_edge_mat.name)
-#                new_edge_mat= old_edge_mat.copy()
-#                slot.material.mmd_material.edge_mat_name = new_edge_mat.name
-#            else:
-#                new_edge_mat, mat_vtx = new_mmd_material(slot.material.name, slot.material, ob)
-#
-#            ob.material_slots[bpy.context.object.active_material_index+1].material = new_edge_mat
+# but need to prevent recursive loop
+        if len(ob.material_slots) == 0:
+            bpy.ops.object.material_slot_add()
+
+        if bpy.context.object.active_material_index+1 >= len(ob.material_slots):
+            bpy.ops.object.material_slot_add()
+            bpy.context.object.active_material_index -= 1
+
+        bpy.ops.material.new()
 
         return {'FINISHED'}
 

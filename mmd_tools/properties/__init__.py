@@ -54,16 +54,22 @@ def mmd_material_scene_update(scene):
        bpy.context.scene.render.engine == 'mmd_tools_engine':
         ob = bpy.context.object
         mat = ob.active_material
+
         if mat and (mat.name.find(".edge")>=0 or mat.name.find(".alp")>=0 or mat.name.find(".spw")>=0):
             mat = ob.active_material = None
 
+#        if len(ob.material_slots) == 0:
+#            bpy.ops.object.material_slot_add() # XXX: cause recursive loop
+
         if bpy.context.object.active_material_index+1 >= len(ob.material_slots):
-            bpy.ops.object.material_slot_add()
+             return
+#            bpy.ops.object.material_slot_add() # XXX: cause recursive loop
+#            bpy.context.object.active_material_index -= 1
 
         if not mat:
             edge_mat = None
         elif mat.mmd_material.edge_mat_name == "":
-            edge_mat, mat_vtx = new_mmd_material(ob.active_material.name, ob.active_material, ob)
+            edge_mat, mat_vtx = new_mmd_material(mat.name, mat, ob)
         else:
             edge_mat = bpy.data.materials[mat.mmd_material.edge_mat_name]
 
