@@ -379,3 +379,6 @@ class FnMaterial(object):
         for i in mmd_mat.vgs:
             bpy.data.objects[i.obj_name].modifiers[i.vg_name].mask_constant = mmd_mat.edge_weight/100.0
 
+def new_mmd_material():
+    pass
+

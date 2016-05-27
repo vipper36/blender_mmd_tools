@@ -83,7 +83,7 @@ class __PmxExporter:
         for mat_name, mat_meshes in mat_map.items():
             face_count = 0
 
-            if mat_name.endswith(".edge"):
+            if mat_name.find(".edge")>=0:
                 continue
 
             for mat_faces, vertex_group_names in mat_meshes:

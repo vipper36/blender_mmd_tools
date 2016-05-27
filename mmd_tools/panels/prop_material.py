@@ -9,7 +9,7 @@ import bpy
 class MMDMaterialSlot(UIList):
     def draw_item(self, context, layout, data, item, icon, active_data, active_propname, index):
         mat = item.material
-        if mat and mat.name.endswith(".edge"):
+        if mat and mat.name.find(".edge")>=0:
             col = layout.column()
             col.enabled = False
             col.alignment = 'LEFT'
@@ -36,13 +36,13 @@ class MMDMaterialSlot(UIList):
             if not mat.material and not edge_space:
                 edge_space=True
                 continue
-            if mat.material and not mat.material.name.endswith(".edge"):
+            if mat.material and not mat.material.name.find(".edge")>=0:
                 edge_space=True
                 continue
 
-            if ((not mat.material) or mat.material.name.endswith(".edge")) and not self.use_filter_invert:
+            if ((not mat.material) or mat.material.name.find(".edge")>=0) and not self.use_filter_invert:
                 flt_flags[idx] &= ~self.bitflag_filter_item
-            elif ((not mat.material) or mat.material.name.endswith(".edge")) and self.use_filter_invert:
+            elif ((not mat.material) or mat.material.name.find(".edge")>=0) and self.use_filter_invert:
                 flt_flags[idx] |= self.bitflag_filter_item
 
             edge_space=False
@@ -62,7 +62,7 @@ class MMDMaterialSlotAdd(bpy.types.Operator):
 
     def execute(self, context):
         ob = context.object
-        if ob.material_slots[-1].material and not ob.material_slots[-1].material.name.endswith(".edge"):
+        if ob.material_slots[-1].material and not ob.material_slots[-1].material.name.find(".edge")>=0:
             bpy.ops.object.material_slot_add() # add last material edge
 
         bpy.ops.object.material_slot_add()
@@ -151,13 +151,50 @@ class MMDMaterialSlotAssign(bpy.types.Operator):
         ob = context.object
         if bpy.context.object.active_material_index+1 < len(ob.material_slots):
             if slot.material.mmd_material.edge_mat_name == "":
-                edge_mat = bpy.data.materials.new(slot.material.name + ".edge") ### TODO: should fix
+                edge_mat = bpy.data.materials.new(slot.material.name + ".edge") # TODO: should fix
                 slot.material.mmd_material.edge_mat_name = edge_mat.name
             ob.material_slots[bpy.context.object.active_material_index+1].material = \
               bpy.data.materials[slot.material.mmd_material.edge_mat_name]
 
 
         bpy.ops.object.material_slot_assign()
+        return {'FINISHED'}
+
+class MMDMaterialNew(bpy.types.Operator):
+    """Create New Material"""
+    bl_idname = "mmd_tools.material_new"
+    bl_label = "Create New Material"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        slot = context.material_slot
+        ob = context.object
+        bpy.ops.material.new()
+        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
+            old_edge_mat = ob.material_slots[bpy.context.object.active_material_index+1].material
+            if old_edge_mat:
+                new_edge_mat = bpy.data.materials.new(old_edge_mat.name)
+                new_edge_mat= old_edge_mat.copy()
+            else:
+                new_edge_mat = bpy.data.materials.new(slot.material.name + ".edge") #TODO: should fix
+
+            slot.material.mmd_material.edge_mat_name = new_edge_mat.name
+            ob.material_slots[bpy.context.object.active_material_index+1].material = new_edge_mat
+
+        return {'FINISHED'}
+
+
+class MMDMaterialUnlink(bpy.types.Operator):
+    """Create Unlink Material"""
+    bl_idname = "mmd_tools.material_unlink"
+    bl_label = "Unlink Material"
+    bl_options = {'REGISTER'}
+
+    def execute(self, context):
+        ob = context.object
+        ob.material_slots[bpy.context.object.active_material_index].material = None
+        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
+            ob.material_slots[bpy.context.object.active_material_index+1].material = None
         return {'FINISHED'}
 
 class MMDMaterialSlotPanel(Panel):
@@ -188,7 +225,7 @@ class MMDMaterialSlotPanel(Panel):
                     is_sortable += 1
                     edge_space=True
                     continue
-                if s.material and not s.material.name.endswith(".edge"):
+                if s.material and not s.material.name.find(".edge")>=0:
                     is_sortable += 1
                     edge_space=True
                     continue
@@ -225,7 +262,8 @@ class MMDMaterialSlotPanel(Panel):
         split = layout.split(percentage=0.65)
 
         if ob:
-            split.template_ID(ob, "active_material", new="material.new")
+            # "update" is handling in mmd_material_scene_update
+            split.template_ID(ob, "active_material", new="mmd_tools.material_new", unlink="mmd_tools.material_unlink")
             row = split.row()
 
             if slot:
@@ -246,7 +284,7 @@ class MMDMaterialPanel(Panel):
     @classmethod
     def poll(cls, context):
         material = context.active_object.active_material
-        return material and material.mmd_material and not material.name.endswith(".edge")
+        return material and material.mmd_material and not material.name.find(".edge")>=0
 
     def draw(self, context):
         material = context.active_object.active_material
@@ -308,7 +346,7 @@ class MMDTexturePanel(Panel):
     @classmethod
     def poll(cls, context):
         material = context.active_object.active_material
-        return material and material.mmd_material and not material.name.endswith(".edge")
+        return material and material.mmd_material and not material.name.find(".edge")>=0
 
     def draw(self, context):
         material = context.active_object.active_material

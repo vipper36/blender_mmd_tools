@@ -3,6 +3,7 @@
 import bpy
 
 from . import root, camera, material, bone, rigid_body
+from bpy.app.handlers import persistent
 
 __properties = {
     bpy.types.Object: {
@@ -44,10 +45,33 @@ __properties = {
         }
     }
 
+
+@persistent
+def mmd_material_scene_update(scene):
+    if bpy.context.object and bpy.context.object.active_material and \
+       bpy.context.object.active_material.is_updated and \
+       bpy.context.scene.render.engine == 'mmd_tools_engine':
+        ob = bpy.context.object
+        mat = ob.active_material
+        if mat and mat.name.find(".edge")>=0:
+            mat = ob.active_material = None
+
+        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
+            if not mat:
+                edge_mat = None
+            elif mat.mmd_material.edge_mat_name == "":
+                edge_mat = bpy.data.materials.new(ob.active_material.name + ".edge") # TODO: should fix
+                mat.mmd_material.edge_mat_name = edge_mat.name
+            else:
+                edge_mat = bpy.data.materials[mat.mmd_material.edge_mat_name]
+            ob.material_slots[bpy.context.object.active_material_index+1].material = edge_mat
+
 def register():
     for typ, t in __properties.items():
         for attr, prop in t.items():
             setattr(typ, attr, prop)
+
+    bpy.app.handlers.scene_update_pre.append(mmd_material_scene_update)
 
 def unregister():
     for typ, t in __properties.items():
