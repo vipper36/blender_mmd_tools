@@ -379,6 +379,312 @@ class FnMaterial(object):
         for i in mmd_mat.vgs:
             bpy.data.objects[i.obj_name].modifiers[i.vg_name].mask_constant = mmd_mat.edge_weight/100.0
 
+def mmd_shader_get():
+    groups = bpy.data.node_groups
+    if "mmd_tools_shader" in groups:
+        return groups["mmd_tools_shader"]
+    mat = bpy.data.materials.new(name="mmd_tools Node Base")
+
+    mat_ns = bpy.data.materials.new(name="mmd_tools Node Base NoShadow")
+    mat_ns.use_shadows = False
+    mat_ns.use_transparent_shadows = False
+
+    # light color receiver hack!
+    l_mat = bpy.data.materials.new(name="mmd_tools Light Base")
+    l_mat.diffuse_shader = 'FRESNEL'
+    l_mat.diffuse_fresnel = 0.0
+    l_mat.diffuse_fresnel_factor = 0.0
+    l_mat.use_shadows = False
+
+    # type, input, params, name
+    engine_shader = [
+        ["NodeGroupInput", None, None, "mmd_tools Group Input"],
+
+        ["ShaderNodeExtendedMaterial", [
+            [1.0, 1.0, 1.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+            1.0,
+            [0.0, 0.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+            1.0,
+            0.0,
+            1.0,
+            0.0,
+            1.0,
+            0.0,
+        ], {
+            "use_diffuse": True,
+            "use_specular": False,
+            "invert_normal": False,
+            "material": bpy.data.materials["mmd_tools Light Base"]},
+            "mmd_tools Lamp Data"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Lamp Data", 3],
+            ["mmd_tools Group Input", 0],
+        ],
+        {"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Dif Mul"],
+
+        ["ShaderNodeMath",[
+            0.001,
+            ["mmd_tools Group Input", 1], # shininess
+        ], {"operation": "POWER"} , "mmd_tools LSpec Weight Base"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools LSpec Weight Base", 0],
+            ["mmd_tools Lamp Data", 3],
+        ], {"blend_type": "MULTIPLY"} , "mmd_tools LSpec Weight"],
+
+        ["ShaderNodeSeparateRGB", [["mmd_tools Group Input", 2]], None, "mmd_tools Placeholder 1"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Group Input", 3],
+            ["mmd_tools LSpec Weight", 0],
+        ], {"blend_type": "LIGHTEN"} , "mmd_tools Spec Weight"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Group Input", 2],
+            ["mmd_tools Spec Weight", 0],
+        ],
+        {"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Spec Mul"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Dif Mul", 0],
+            ["mmd_tools Spec Mul", 0],
+        ],
+        {"blend_type": "ADD", "use_clamp": True}, "mmd_tools Spec Add"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Spec Add", 0],
+            ["mmd_tools Group Input", 4],
+        ],
+        {"blend_type": "ADD", "use_clamp": True}, "mmd_tools Amb Add"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Amb Add", 0],
+            ["mmd_tools Group Input", 5],
+        ],
+        {"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Tex Mul"],
+
+# TOON
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Group Input", 6],
+            ["mmd_tools Lamp Data", 3],
+        ],
+        {"blend_type": "DIVIDE", "use_clamp": True}, "mmd_tools NL"],
+
+        ["ShaderNodeMath",[
+            1.0,
+            ["mmd_tools NL", 0],
+        ],
+        {"operation": "SUBTRACT", "use_clamp": True}, "mmd_tools 1-NL"],
+
+        ["ShaderNodeMath",[
+            0.5,
+            ["mmd_tools 1-NL", 0],
+        ],
+        {"operation": "MULTIPLY", "use_clamp": True}, "mmd_tools 0.5*(1-NL)"],
+
+        ["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 1"],
+        ["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 2"],
+        ["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 3"],
+        ["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 4"],
+        ["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 5"],
+        ["ShaderNodeValToRGB",[["mmd_tools 0.5*(1-NL)", 0]], None, "mmd_tools ToonRamp 6"],
+
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            -0.1, #XXX
+        ], {"operation": "GREATER_THAN"}, "mmd_tools Math 1"],
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            0.9,
+        ], {"operation": "GREATER_THAN"}, "mmd_tools Math 2"],
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            1.9,
+        ], {"operation": "GREATER_THAN"}, "mmd_tools Math 3"],
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            2.9,
+        ], {"operation": "GREATER_THAN"} , "mmd_tools Math 4"],
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            3.9,
+        ], {"operation": "GREATER_THAN"} , "mmd_tools Math 5"],
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            4.9,
+        ], {"operation": "GREATER_THAN"} , "mmd_tools Math 6"],
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 7],
+            5.9,
+        ], {"operation": "GREATER_THAN"}, "mmd_tools Math 7"],
+
+        ["ShaderNodeSeparateRGB", [["mmd_tools Group Input", 8]], None, "mmd_tools Placeholder 2"],
+
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Group Input", 9],
+            [1.0, 1.0, 1.0, 1.0], # checked
+            ["mmd_tools Group Input", 8],
+        ],
+        {"blend_type": "MIX", "use_clamp": True}, "mmd_tools ToonTex"],
+
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 1", 0],
+            ["mmd_tools ToonTex", 0],
+            ["mmd_tools ToonRamp 1", 0],
+        ], None, "mmd_tools Mix 1"],
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 2", 0],
+            ["mmd_tools Mix 1", 0],
+            ["mmd_tools ToonRamp 2", 0],
+        ], None, "mmd_tools Mix 2"],
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 3", 0],
+            ["mmd_tools Mix 2", 0],
+            ["mmd_tools ToonRamp 3", 0],
+        ], None, "mmd_tools Mix 3"],
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 4", 0],
+            ["mmd_tools Mix 3", 0],
+            ["mmd_tools ToonRamp 4", 0],
+        ], None, "mmd_tools Mix 4"],
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 5", 0],
+            ["mmd_tools Mix 4", 0],
+            ["mmd_tools ToonRamp 5", 0],
+        ], None, "mmd_tools Mix 5"],
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 6", 0],
+            ["mmd_tools Mix 5", 0],
+            ["mmd_tools ToonRamp 6", 0],
+        ], None, "mmd_tools Mix 6"],
+        ["ShaderNodeMixRGB",[
+            ["mmd_tools Math 7", 0],
+            ["mmd_tools Mix 6", 0],
+            ["mmd_tools NL", 0],
+        ], None, "mmd_tools Mix 7"],
+
+        ["ShaderNodeMixRGB",[
+            1.0,
+            ["mmd_tools Tex Mul", 0],
+            ["mmd_tools Mix 7", 0],
+        ],
+        {"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Mul"],
+    # ["ShaderNodeOutput", [["mmd_tools Add", 0], 1.0], None, "mmd_tools Output"],
+    # ["ShaderNodeRGB", , , ],
+        ["NodeGroupOutput", [["mmd_tools Mul", 0]], None,
+            "mmd_tools Group Output"],
+    ]
+
+    def nodegroup_setup(group, node_list):
+
+        shader = group
+        nodes = shader.nodes
+
+        for n in node_list:
+            node = nodes.new(n[0])
+            node.name = n[3]
+
+            # should set material before diffuse intensity
+            if n[2] is not None:
+                for k in n[2]:
+                    setattr(node, k, n[2][k])
+
+            if n[1] is not None:
+                for i, x in enumerate(n[1]):
+                    if type(x) is list and type(x[0]) is str:
+                        shader.links.new(node.inputs[i], nodes[x[0]].outputs[x[1]])
+                        continue
+
+                    node.inputs[i].default_value = x
+
+    shader = groups.new(name='mmd_tools_shader', type='ShaderNodeTree')
+    nodegroup_setup(shader, engine_shader)
+
+    nodes = shader.nodes
+    color_ramp = nodes["mmd_tools ToonRamp 1"].color_ramp
+    color_ramp.interpolation = "CONSTANT"
+    color_ramp.elements[0].position = 0.0
+    color_ramp.elements[0].color = (1.0, 1.0, 1.0, 1.0)
+    color_ramp.elements[1].position = 0.5
+    color_ramp.elements[1].color = (0.803922, 0.803922, 0.803922, 1.0)
+
+    color_ramp = nodes["mmd_tools ToonRamp 2"].color_ramp
+    color_ramp.interpolation = "CONSTANT"
+    color_ramp.elements[0].position = 0.0
+    color_ramp.elements[0].color = (1.0, 1.0, 1.0, 1.0)
+    color_ramp.elements[1].position = 0.5
+    color_ramp.elements[1].color = (0.960784, 0.882353, 0.882353, 1.0)
+
+    color_ramp = nodes["mmd_tools ToonRamp 3"].color_ramp
+    color_ramp.interpolation = "CONSTANT"
+    color_ramp.elements[0].position = 0.0
+    color_ramp.elements[0].color = (1.0, 1.0, 1.0, 1.0)
+    color_ramp.elements[1].position = 0.5
+    color_ramp.elements[1].color = (0.603922, 0.603922, 0.603922, 1.0)
+
+    color_ramp = nodes["mmd_tools ToonRamp 4"].color_ramp
+    color_ramp.interpolation = "CONSTANT"
+    color_ramp.elements[0].position = 0.0
+    color_ramp.elements[0].color = (1.0, 1.0, 1.0, 1.0)
+    color_ramp.elements[1].position = 0.5
+    color_ramp.elements[1].color = (0.972549, 0.937255, 0.921569, 1.0)
+
+    # XXX: not accurate
+    color_ramp = nodes["mmd_tools ToonRamp 5"].color_ramp
+    color_ramp.interpolation = "EASE"
+    color_ramp.elements[0].position = 0.5
+    color_ramp.elements[0].color = (1.0, 1.0, 1.0, 1.0)
+    color_ramp.elements[1].position = 0.75
+    color_ramp.elements[1].color = (1.0, 0.905882, 0.870588, 1.0)
+
+    # XXX: not accurate
+    color_ramp = nodes["mmd_tools ToonRamp 6"].color_ramp
+    color_ramp.interpolation = "EASE"
+    color_ramp.elements[0].position = 0.25 - (1.5/32.0)
+    color_ramp.elements[0].color = (1.0, 0.929412, 0.380392, 1.0)
+    color_ramp.elements[1].position = 0.25
+    color_ramp.elements[1].color = (1.0, 0.996078, 0.94902, 1.0)
+    color_ramp.elements.new(0.25 + (1.5/32.0))
+    color_ramp.elements[2].color = (1.0, 0.929412, 0.380392, 1.0)
+    color_ramp.elements.new(0.75 - (1.0/32.0))
+    color_ramp.elements[3].color = (1.0, 0.929412, 0.380392, 1.0)
+    color_ramp.elements.new(0.75 + (1.0/32.0))
+    color_ramp.elements[4].color = (0.764706, 0.67451, 0.0117647, 1.0)
+
+    shader.inputs[0].name = "Dif"
+    shader.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+    shader.inputs[1].name = "Shininess"
+    shader.inputs[1].default_value = 1.0
+    shader.inputs[2].name = "Spec"
+    shader.inputs[2].default_value = [1.0, 1.0, 1.0, 1.0]
+    shader.inputs[3].name = "Spec Weight"
+    shader.inputs[3].default_value = [1.0, 1.0, 1.0, 1.0]
+    shader.inputs[4].name = "Amb"
+    shader.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
+    shader.inputs[5].name = "Tex"
+    shader.inputs[5].default_value = [1.0, 1.0, 1.0, 1.0]
+    shader.inputs[6].name = "Pure Mat"
+    shader.inputs[6].default_value = [1.0, 1.0, 1.0, 1.0]
+    shader.inputs[7].name = "Toon"
+    shader.inputs[7].default_value = 0.0
+    shader.inputs[8].name = "ToonTex"
+    shader.inputs[8].default_value = [1.0, 1.0, 1.0, 1.0]
+    shader.inputs[9].name = "UseToonTex"
+    shader.inputs[9].default_value = 0.0
+
+    return shader
+
 def new_mmd_material(name, mat, ob):
     mmd_mat = mat.mmd_material
     mat.use_transparency = True
@@ -386,7 +692,7 @@ def new_mmd_material(name, mat, ob):
     nodes = mat.node_tree.nodes
     ng = nodes.new("ShaderNodeGroup")
     ng.name = "mmd_tools_shader"
-    ng.node_tree = bpy.data.node_groups["mmd_tools_shader"]
+    ng.node_tree = mmd_shader_get()
     ng.inputs[0].default_value = list(mmd_mat.diffuse_color) + [1.0]
     ng.inputs[1].default_value = mmd_mat.shininess
     ng.inputs[2].default_value = list(mmd_mat.specular_color) + [1.0]
