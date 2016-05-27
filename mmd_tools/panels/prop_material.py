@@ -62,7 +62,8 @@ class MMDMaterialSlotAdd(bpy.types.Operator):
 
     def execute(self, context):
         ob = context.object
-        if ob.material_slots[-1].material and not ob.material_slots[-1].material.name.find(".edge")>=0:
+        if len(ob.material_slots) > 0 and ob.material_slots[-1].material and \
+           not ob.material_slots[-1].material.name.find(".edge")>=0:
             bpy.ops.object.material_slot_add() # add last material edge
 
         bpy.ops.object.material_slot_add()
@@ -81,11 +82,18 @@ class MMDMaterialSlotRemove(bpy.types.Operator):
         slot = context.material_slot
         ob = context.object
 
+        if len(ob.material_slots) == 0:
+            return {'CANCELLED'}
+
         edge_mat_name = None
+
         if slot.material:
             edge_mat_name = slot.material.mmd_material.edge_mat_name
 
         bpy.ops.object.material_slot_remove()
+
+        if len(ob.material_slots) == 0:
+            return {'FINISHED'}
 
         idx = bpy.context.object.active_material_index
 
