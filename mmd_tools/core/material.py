@@ -392,7 +392,7 @@ def new_mmd_material(name, mat, ob):
     ng.inputs[2].default_value = list(mmd_mat.specular_color) + [1.0]
     ng.inputs[4].default_value = list(mmd_mat.ambient_color) + [1.0]
 
-    mat_spw = bpy.data.materials.new(name=name+".spw")
+    mat_spw = bpy.data.materials.new(name="~"+name+".spw")
     mat_spw.diffuse_color = (0.0, 0.0, 0.0)
     mat_spw.diffuse_intensity = 0.0
     mat_spw.specular_color = (1.0, 1.0, 1.0)
@@ -420,7 +420,7 @@ def new_mmd_material(name, mat, ob):
         ng.inputs[7].default_value = mmd_mat.toon_texture
     mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
 
-    amat = bpy.data.materials.new(name=name + ".alp")
+    amat = bpy.data.materials.new(name="~"+name + ".alp")
     amat.diffuse_color = [1.0, 1.0, 1.0]
     amat.diffuse_intensity = 1.0
     amat.use_shadeless = True
@@ -596,11 +596,11 @@ def new_mmd_material(name, mat, ob):
 #        texture_slot = fnMat.create_sphere_texture(self.__textureTable[i.sphere_texture])
 #        stexn.texture = texture_slot.texture
 
-    edge_base_mat = bpy.data.materials.new(name=name + ".edge.base")
+    edge_base_mat = bpy.data.materials.new(name="~" + name + ".edge.base")
     edge_base_mat.use_shadeless = True
 #    edge_base_mat.translucency = 1.0
 
-    edge_mat = bpy.data.materials.new(name=name + ".edge")
+    edge_mat = bpy.data.materials.new(name="~" + name + ".edge")
     mmd_mat.edge_mat_name = edge_mat.name
     edge_mat.use_nodes = True
     edge_mat.use_transparency = True
@@ -631,7 +631,7 @@ def new_mmd_material(name, mat, ob):
 
     edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
 
-    mat_vtx = ob.vertex_groups.new(name=name + ".vtx")
+    mat_vtx = ob.vertex_groups.new(name="~" + name + ".vtx")
 
     edge_vtx = None
     if "edge_vtx" in ob.vertex_groups:
@@ -639,7 +639,7 @@ def new_mmd_material(name, mat, ob):
     else:
         edge_vtx = ob.vertex_groups.new("edge_vtx")
 
-    edge_mix = ob.modifiers.new(name=name + '.mix', type='VERTEX_WEIGHT_MIX')
+    edge_mix = ob.modifiers.new(name="~" + name + '.mix', type='VERTEX_WEIGHT_MIX')
     edge_mix.vertex_group_a = edge_vtx.name
     edge_mix.default_weight_a = 0.0
     edge_mix.vertex_group_b = mat_vtx.name
