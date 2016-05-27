@@ -379,6 +379,334 @@ class FnMaterial(object):
         for i in mmd_mat.vgs:
             bpy.data.objects[i.obj_name].modifiers[i.vg_name].mask_constant = mmd_mat.edge_weight/100.0
 
-def new_mmd_material():
-    pass
+def new_mmd_material(name, mat, ob):
+    mmd_mat = mat.mmd_material
+    mat.use_transparency = True
+    mat.use_nodes = True
+    nodes = mat.node_tree.nodes
+    ng = nodes.new("ShaderNodeGroup")
+    ng.name = "mmd_tools_shader"
+    ng.node_tree = bpy.data.node_groups["mmd_tools_shader"]
+    ng.inputs[0].default_value = list(mmd_mat.diffuse_color) + [1.0]
+    ng.inputs[1].default_value = mmd_mat.shininess
+    ng.inputs[2].default_value = list(mmd_mat.specular_color) + [1.0]
+    ng.inputs[4].default_value = list(mmd_mat.ambient_color) + [1.0]
+
+    mat_spw = bpy.data.materials.new(name=name+".spw")
+    mat_spw.diffuse_color = (0.0, 0.0, 0.0)
+    mat_spw.diffuse_intensity = 0.0
+    mat_spw.specular_color = (1.0, 1.0, 1.0)
+    mat_spw.specular_hardness = mmd_mat.shininess
+    mat_spw.specular_shader = 'PHONG'
+    if mmd_mat.shininess > 0:
+        mat_spw.specular_intensity = 1.0
+    else:
+        mat_spw.specular_intensity = 0
+
+    spwn = nodes.new("ShaderNodeExtendedMaterial")
+    spwn.name = "Spec Weight"
+    spwn.use_diffuse = False
+    spwn.material = mat_spw
+    mat.node_tree.links.new(ng.inputs[3], spwn.outputs[4])
+
+    geon = nodes.new("ShaderNodeGeometry")
+    geon.name = "Geo"
+
+    geon2 = nodes.new("ShaderNodeGeometry")
+    geon2.name = "Geo2"
+    geon2.uv_layer = "UVMap.001"
+
+    if mmd_mat.is_shared_toon_texture:
+        ng.inputs[7].default_value = mmd_mat.toon_texture
+    mat.node_tree.links.new(nodes["Output"].inputs[0], ng.outputs[0])
+
+    amat = bpy.data.materials.new(name=name + ".alp")
+    amat.diffuse_color = [1.0, 1.0, 1.0]
+    amat.diffuse_intensity = 1.0
+    amat.use_shadeless = True
+    amat.use_transparency = True
+    amat.transparency_method = 'Z_TRANSPARENCY'
+    amat.alpha = mmd_mat.alpha
+    amat_tex = amat.texture_slots.create(0)
+    amat_tex.use_map_alpha = True
+    amat_tex.texture_coords = 'UV'
+    amat_tex.blend_type = 'MULTIPLY'
+
+    an = nodes.new("ShaderNodeMaterial")
+    an.name = "Alpha Mul"
+    an.material = amat
+
+    issn = nodes.new("ShaderNodeMath")
+    issn.name = "Is Single"
+    issn.operation = "MAXIMUM"
+    mat.node_tree.links.new(issn.inputs[0], geon.outputs[8])
+    issn.inputs[1].default_value = float(mmd_mat.is_double_sided)
+
+    fan = nodes.new("ShaderNodeMath")
+    fan.name = "Final Alpha"
+    fan.operation = "MULTIPLY"
+    mat.node_tree.links.new(fan.inputs[0], an.outputs[1])
+    mat.node_tree.links.new(fan.inputs[1], issn.outputs[0])
+
+    mat.node_tree.links.new(nodes["Output"].inputs[1], fan.outputs[0])
+
+
+    mat.use_cast_buffer_shadows = mmd_mat.enabled_drop_shadow
+    mat.use_cast_shadows = mmd_mat.enabled_self_shadow_map or mmd_mat.enabled_drop_shadow
+    mat.use_raytrace = mmd_mat.enabled_self_shadow_map
+
+    pmatn = nodes.new("ShaderNodeExtendedMaterial")
+    pmatn.name = "Pure Mat"
+    if mmd_mat.enabled_self_shadow:
+        pmatn.material = bpy.data.materials["mmd_tools Node Base"]
+    else:
+        pmatn.material = bpy.data.materials["mmd_tools Node Base NoShadow"]
+    pmatn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+    pmatn.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+    pmatn.inputs[2].default_value = 1.0
+    pmatn.inputs[3].default_value = [0.0, 0.0, 0.0]
+    pmatn.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
+    pmatn.inputs[5].default_value = 1.0
+    pmatn.inputs[6].default_value = 0.0
+    pmatn.inputs[7].default_value = 1.0
+    pmatn.inputs[8].default_value = 0.0
+    pmatn.inputs[9].default_value = 1.0
+    pmatn.inputs[10].default_value = 0.0
+
+    mat.node_tree.links.new(ng.inputs[6], pmatn.outputs[0])
+
+    lmatn = nodes.new("ShaderNodeExtendedMaterial")
+    lmatn.name = "Lamp Data"
+
+    lmatn.use_diffuse = True
+    lmatn.use_specular = False
+    lmatn.material = bpy.data.materials["mmd_tools Light Base"]
+    lmatn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+    lmatn.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+    lmatn.inputs[2].default_value = 1.0
+    lmatn.inputs[3].default_value = [0.0, 0.0, 0.0]
+    lmatn.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
+    lmatn.inputs[5].default_value = 1.0
+    lmatn.inputs[6].default_value = 0.0
+    lmatn.inputs[7].default_value = 1.0
+    lmatn.inputs[8].default_value = 0.0
+    lmatn.inputs[9].default_value = 1.0
+    lmatn.inputs[10].default_value = 0.0
+
+    lnn = nodes.new("ShaderNodeMixRGB")
+    lnn.name = "LN"
+    lnn.blend_type = "DIVIDE"
+    lnn.inputs[0].default_value = 1.0
+    mat.node_tree.links.new(lnn.inputs[1], pmatn.outputs[3])
+    mat.node_tree.links.new(lnn.inputs[2], lmatn.outputs[3])
+
+#    tvecn = nodes.new("ShaderNodeMixRGB")
+#    tvecn.name = "Toon Vec Pre"
+#    tvecn.blend_type = "SUBTRACT"
+#    tvecn.inputs[0].default_value = 1.0
+#    tvecn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+#    mat.node_tree.links.new(tvecn.inputs[2], lnn.outputs[0])
+
+    tvecn2 = nodes.new("ShaderNodeMixRGB")
+    tvecn2.name = "Toon Vec"
+    tvecn2.blend_type = "MULTIPLY"
+    tvecn2.inputs[0].default_value = 1.0
+    mat.node_tree.links.new(tvecn2.inputs[1], lnn.outputs[0])
+    tvecn2.inputs[2].default_value = [0.0, 1.0, 0.0, 1.0]
+
+    ttexn = nodes.new("ShaderNodeTexture")
+    ttexn.name = "Toon Tex"
+    mat.node_tree.links.new(ttexn.inputs[0], tvecn2.outputs[0])
+
+
+    ttex_gn = nodes.new("ShaderNodeGamma")
+    ttex_gn.name = "Gamma Toon Tex"
+    mat.node_tree.links.new(ttex_gn.inputs[0], ttexn.outputs[1])
+    ttex_gn.inputs[1].default_value = 2.2 #???
+
+    mat.node_tree.links.new(ng.inputs[8], ttex_gn.outputs[0])
+
+    texn = nodes.new("ShaderNodeTexture")
+    texn.name = "Tex"
+    mat.node_tree.links.new(texn.inputs[0], geon.outputs[4]) # UV
+
+    tex_gn = nodes.new("ShaderNodeGamma")
+    tex_gn.name = "Gamma Tex"
+    mat.node_tree.links.new(tex_gn.inputs[0], texn.outputs[1])
+    tex_gn.inputs[1].default_value = 1.0 #???
+
+    utex = nodes.new("ShaderNodeMixRGB")
+    utex.name = "Use Tex"
+    utex.blend_type = "MIX"
+    utex.inputs[0].default_value = 0.0
+    utex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+    mat.node_tree.links.new(utex.inputs[2], tex_gn.outputs[0])
+
+
+    stexn = nodes.new("ShaderNodeTexture")
+    stexn.name = "Sphere Tex"
+
+    stex_gn = nodes.new("ShaderNodeGamma")
+    stex_gn.name = "Gamma Sphere Tex"
+    mat.node_tree.links.new(stex_gn.inputs[0], stexn.outputs[1])
+    stex_gn.inputs[1].default_value = 1.0 #???
+
+    ustex = nodes.new("ShaderNodeMixRGB")
+    ustex.name = "Use Sphere Tex"
+    ustex.blend_type = "MIX"
+    ustex.inputs[0].default_value = 0.0
+    ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+    mat.node_tree.links.new(ustex.inputs[2], stex_gn.outputs[0])
+
+    mixtex = nodes.new("ShaderNodeMixRGB")
+    mixtex.name = "Mix Tex"
+    mixtex.blend_type = "MULTIPLY"
+    mixtex.inputs[0].default_value = 1.0
+    mat.node_tree.links.new(mixtex.inputs[1], utex.outputs[0])
+    mat.node_tree.links.new(mixtex.inputs[2], ustex.outputs[0])
+
+    mat.node_tree.links.new(ng.inputs[5], mixtex.outputs[0])
+
+#    if i.texture != -1:
+#        texture_slot = fnMat.create_texture(self.__textureTable[i.texture])
+#        texture_slot.texture.use_mipmap = self.__use_mipmap
+#        self.__imageTable[len(self.__materialTable)-1] = texture_slot.texture.image
+#
+#        amat_tex.texture = texture_slot.texture
+#        texn.texture = texture_slot.texture
+#        utex.inputs[0].default_value = 1.0
+
+    if mmd_mat.sphere_texture_type == 1:
+        mat.node_tree.links.new(stexn.inputs[0], geon.outputs[5]) # Normal
+        mixtex.blend_type = "MULTIPLY"
+        ustex.inputs[0].default_value = 1.0
+        ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+    elif mmd_mat.sphere_texture_type == 2:
+        mat.node_tree.links.new(stexn.inputs[0], geon.outputs[5]) # Normal
+        mixtex.blend_type = "ADD"
+        ustex.inputs[0].default_value = 1.0
+        ustex.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+    elif mmd_mat.sphere_texture_type == 3:
+        mat.node_tree.links.new(stexn.inputs[0], geon2.outputs[4]) # Additional UV
+        mixtex.blend_type = "MULTIPLY"
+        ustex.inputs[0].default_value = 1.0
+        ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+
+#    if i.sphere_texture != -1:
+#        texture_slot = fnMat.create_sphere_texture(self.__textureTable[i.sphere_texture])
+#        stexn.texture = texture_slot.texture
+
+    edge_base_mat = bpy.data.materials.new(name=name + ".edge.base")
+    edge_base_mat.use_shadeless = True
+#    edge_base_mat.translucency = 1.0
+
+    edge_mat = bpy.data.materials.new(name=name + ".edge")
+    mmd_mat.edge_mat_name = edge_mat.name
+    edge_mat.use_nodes = True
+    edge_mat.use_transparency = True
+    edge_mat.use_raytrace = False
+    edge_mat.use_cast_shadows = False
+    edge_mat.use_cast_buffer_shadows = False
+    edge_mat.use_cast_approximate = False
+    edge_mat.use_shadows = False
+    edge_mat.use_ray_shadow_bias = False
+    edge_mat.offset_z = 0.001 # why?
+    nodes = edge_mat.node_tree.nodes
+
+    edge_bn = nodes.new("ShaderNodeMaterial")
+    edge_bn.name = "Edge Base"
+    edge_bn.material = edge_base_mat
+    edge_bn.inputs[0].default_value = list(mmd_mat.edge_color)[0:3] + [1.0]
+
+    edge_mat.node_tree.links.new(nodes["Output"].inputs[0], edge_bn.outputs[0])
+
+    edge_geon = nodes.new("ShaderNodeGeometry")
+    edge_geon.name = "Geo"
+
+    use_edge_n = nodes.new("ShaderNodeMath")
+    use_edge_n.name = "Edge Alpha"
+    use_edge_n.inputs[0].default_value = float(mmd_mat.enabled_toon_edge) * mmd_mat.edge_color[3]
+    edge_mat.node_tree.links.new(use_edge_n.inputs[1], edge_geon.outputs[8])
+    use_edge_n.operation = "MULTIPLY"
+
+    edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
+
+    ob.data.materials.append(edge_mat)
+
+    mat_vtx = ob.vertex_groups.new(name=name + ".vtx")
+
+    edge_vtx = None
+    if "edge_vtx" in ob.vertex_groups:
+        edge_vtx = ob.vertex_groups["edge_vtx"]
+    else:
+        edge_vtx = ob.vertex_groups.new("edge_vtx")
+
+    edge_mix = ob.modifiers.new(name=name + '.mix', type='VERTEX_WEIGHT_MIX')
+    edge_mix.vertex_group_a = edge_vtx.name
+    edge_mix.default_weight_a = 0.0
+    edge_mix.vertex_group_b = mat_vtx.name
+    edge_mix.default_weight_b = 1.0
+    edge_mix.mix_set = 'B'
+    edge_mix.mix_mode = 'ADD'
+#    d = edge_mix.driver_new("mask_constant") # XXX: why error?
+#    d.driver.expression = "bpy.data.materials['"+name+"'].mmd_material.edge_weight/100.0"
+    edge_mix.mask_constant = mmd_mat.edge_weight/100.0
+
+    mat_vg = mmd_mat.vgs.add() # XXX: not so good
+    mat_vg.obj_name = ob.name
+    mat_vg.vg_name = edge_mix.name
+
+    cam_vtx = None
+    if "cam_vtx" in ob.vertex_groups:
+        cam_vtx = ob.vertex_groups["cam_vtx"]
+    else:
+        cam_vtx = ob.vertex_groups.new("cam_vtx") # TODO: should append all verteces as 1.0
+
+    if not 'Camera Distance Receiver' in ob.modifiers:
+        cam_dist = ob.modifiers.new(name='Camera Distance Receiver', type='VERTEX_WEIGHT_PROXIMITY')
+        cam_dist.max_dist = 1000
+        cam_dist.vertex_group = cam_vtx.name
+        cam_dist.target = bpy.context.scene.camera # XXX: not so good
+        cam_dist.proximity_mode = 'GEOMETRY'
+        cam_dist.proximity_geometry = {'VERTEX'}
+        cam_dist.mask_constant = 1.0
+    else:
+        bpy.context.scene.objects.active = ob
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
+
+    cam_mix = None
+    if not 'Camera Distance Mixer' in ob.modifiers:
+        cam_mix = ob.modifiers.new(name='Camera Distance Mixer', type='VERTEX_WEIGHT_MIX')
+        cam_mix.vertex_group_a = edge_vtx.name
+        cam_mix.default_weight_a = 1.0
+        cam_mix.vertex_group_b = cam_vtx.name
+        cam_mix.default_weight_b = 1.0
+        cam_mix.mix_mode = 'MUL'
+        cam_mix.mix_set = 'ALL'
+        cam_mix.mask_constant = 1.0
+    else:
+        bpy.context.scene.objects.active = ob
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
+
+    edge_mod = None
+    if not 'Edge Solidify' in ob.modifiers:
+        edge_mod = ob.modifiers.new(name='Edge Solidify', type='SOLIDIFY')
+        edge_mod.offset = 1.0
+        edge_mod.thickness = 2 * 100.0 # XXX: why?
+        edge_mod.thickness_clamp = 0.001 # XXX: why?
+        edge_mod.use_rim = False
+        edge_mod.material_offset = 1
+        edge_mod.use_flip_normals = True
+        edge_mod.vertex_group = edge_vtx.name
+    else:
+        bpy.context.scene.objects.active = ob
+        bpy.ops.object.modifier_move_down(modifier='Edge Solidify') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
+        bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
+
+    return (edge_mat, mat_vtx)
 

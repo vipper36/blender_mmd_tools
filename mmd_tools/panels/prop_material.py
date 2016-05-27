@@ -156,6 +156,7 @@ class MMDMaterialSlotAssign(bpy.types.Operator):
             ob.material_slots[bpy.context.object.active_material_index+1].material = \
               bpy.data.materials[slot.material.mmd_material.edge_mat_name]
 
+        # TODO: weight
 
         bpy.ops.object.material_slot_assign()
         return {'FINISHED'}
