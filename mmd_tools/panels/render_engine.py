@@ -18,7 +18,7 @@ mmdtools_compat_panels = [
 
 	"DATA_PT_context_speaker",
 	"WORLD_PT_context_world",
-	"MATERIAL_PT_context_material",
+#	"MATERIAL_PT_context_material",
 	"DATA_PT_context_camera",
 	"DATA_PT_context_lamp",
 	"DATA_PT_context_mesh",
