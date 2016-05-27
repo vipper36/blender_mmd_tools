@@ -966,6 +966,19 @@ def new_mmd_material(name, mat, ob):
     else:
         cam_vtx = ob.vertex_groups.new("cam_vtx") # TODO: should append all verteces as 1.0
 
+    if not 'Camera Vtx Init' in ob.modifiers:
+        cam_dist = ob.modifiers.new(name='Camera Vtx Init', type='VERTEX_WEIGHT_EDIT')
+        cam_dist.vertex_group = cam_vtx.name
+        cam_dist.use_add = True
+        cam_dist.add_threshold = 0.0
+        cam_dist.default_weight = 1.0
+    else:
+        bpy.context.scene.objects.active = ob
+        bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
+        bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
+        bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
+
     if not 'Camera Distance Receiver' in ob.modifiers:
         cam_dist = ob.modifiers.new(name='Camera Distance Receiver', type='VERTEX_WEIGHT_PROXIMITY')
         cam_dist.max_dist = 1000
@@ -977,6 +990,7 @@ def new_mmd_material(name, mat, ob):
     else:
         bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
 
@@ -995,6 +1009,7 @@ def new_mmd_material(name, mat, ob):
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer') # XXX: should move to last
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
 
     edge_mod = None
     if not 'Edge Solidify' in ob.modifiers:
@@ -1009,6 +1024,7 @@ def new_mmd_material(name, mat, ob):
     else:
         bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
 

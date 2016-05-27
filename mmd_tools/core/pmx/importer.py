@@ -443,9 +443,6 @@ class PMXImporter:
             vg = self.__materialVGTable[int(bf.material_index/2)]
             vg.add([f[0], f[1], f[2]], 1.0, 'ADD')
 
-            vg2 = self.__meshObj.vertex_groups.get("cam_vtx")
-            vg2.add([f[0], f[1], f[2]], 1.0, 'ADD')
-
     def __importVertexMorphs(self):
         pmxModel = self.__model
         mmd_root = self.__rig.rootObject().mmd_root
