@@ -376,6 +376,7 @@ class PMXImporter:
             self.__materialFaceCountTable.append(int(i.vertex_count/3))
             self.__meshObj.data.materials.append(mat)
             edge_mat, mat_vtx = new_mmd_material(i.name, mat, self.__meshObj)
+            self.__meshObj.data.materials.append(edge_mat)
             self.__materialVGTable.append(mat_vtx)
 
             mmd_mat = mat.mmd_material

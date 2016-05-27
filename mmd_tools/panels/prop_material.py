@@ -2,7 +2,7 @@
 
 from bpy.types import Panel, UIList, UI_UL_list
 
-from mmd_tools.core.material import FnMaterial
+from mmd_tools.core.material import FnMaterial, new_mmd_material
 import bpy
 
 # https://www.blender.org/api/blender_python_api_2_77_release/bpy.types.UIList.html
@@ -157,14 +157,14 @@ class MMDMaterialSlotAssign(bpy.types.Operator):
     def execute(self, context):
         slot = context.material_slot
         ob = context.object
-        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
-            if slot.material.mmd_material.edge_mat_name == "":
-                edge_mat = bpy.data.materials.new(slot.material.name + ".edge") # TODO: should fix
-                slot.material.mmd_material.edge_mat_name = edge_mat.name
-            ob.material_slots[bpy.context.object.active_material_index+1].material = \
-              bpy.data.materials[slot.material.mmd_material.edge_mat_name]
+        if bpy.context.object.active_material_index+1 >= len(ob.material_slots):
+            bpy.ops.object.material_slot_add()
+        if slot.material.mmd_material.edge_mat_name == "":
+            edge_mat, mat_vtx = new_mmd_material(slot.material.name, slot.material, ob)
+        ob.material_slots[bpy.context.object.active_material_index+1].material = \
+          bpy.data.materials[slot.material.mmd_material.edge_mat_name]
 
-        # TODO: weight
+        # TODO: update material vertex weight
 
         bpy.ops.object.material_slot_assign()
         return {'FINISHED'}
@@ -179,16 +179,19 @@ class MMDMaterialNew(bpy.types.Operator):
         slot = context.material_slot
         ob = context.object
         bpy.ops.material.new()
-        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
-            old_edge_mat = ob.material_slots[bpy.context.object.active_material_index+1].material
-            if old_edge_mat:
-                new_edge_mat = bpy.data.materials.new(old_edge_mat.name)
-                new_edge_mat= old_edge_mat.copy()
-            else:
-                new_edge_mat = bpy.data.materials.new(slot.material.name + ".edge") #TODO: should fix
 
-            slot.material.mmd_material.edge_mat_name = new_edge_mat.name
-            ob.material_slots[bpy.context.object.active_material_index+1].material = new_edge_mat
+# already handled by mmd_material_scene_update
+#        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
+#            old_edge_mat = ob.material_slots[bpy.context.object.active_material_index+1].material
+#            new_edge_mat = None
+#            if old_edge_mat:
+#                new_edge_mat = bpy.data.materials.new(old_edge_mat.name)
+#                new_edge_mat= old_edge_mat.copy()
+#                slot.material.mmd_material.edge_mat_name = new_edge_mat.name
+#            else:
+#                new_edge_mat, mat_vtx = new_mmd_material(slot.material.name, slot.material, ob)
+#
+#            ob.material_slots[bpy.context.object.active_material_index+1].material = new_edge_mat
 
         return {'FINISHED'}
 

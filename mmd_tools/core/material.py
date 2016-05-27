@@ -631,8 +631,6 @@ def new_mmd_material(name, mat, ob):
 
     edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
 
-    ob.data.materials.append(edge_mat)
-
     mat_vtx = ob.vertex_groups.new(name=name + ".vtx")
 
     edge_vtx = None

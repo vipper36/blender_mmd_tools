@@ -4,6 +4,7 @@ import bpy
 
 from . import root, camera, material, bone, rigid_body
 from bpy.app.handlers import persistent
+from mmd_tools.core.material import new_mmd_material
 
 __properties = {
     bpy.types.Object: {
@@ -53,18 +54,20 @@ def mmd_material_scene_update(scene):
        bpy.context.scene.render.engine == 'mmd_tools_engine':
         ob = bpy.context.object
         mat = ob.active_material
-        if mat and mat.name.find(".edge")>=0:
+        if mat and (mat.name.find(".edge")>=0 or mat.name.find(".alp")>=0 or mat.name.find(".spw")>=0):
             mat = ob.active_material = None
 
-        if bpy.context.object.active_material_index+1 < len(ob.material_slots):
-            if not mat:
-                edge_mat = None
-            elif mat.mmd_material.edge_mat_name == "":
-                edge_mat = bpy.data.materials.new(ob.active_material.name + ".edge") # TODO: should fix
-                mat.mmd_material.edge_mat_name = edge_mat.name
-            else:
-                edge_mat = bpy.data.materials[mat.mmd_material.edge_mat_name]
-            ob.material_slots[bpy.context.object.active_material_index+1].material = edge_mat
+        if bpy.context.object.active_material_index+1 >= len(ob.material_slots):
+            bpy.ops.object.material_slot_add()
+
+        if not mat:
+            edge_mat = None
+        elif mat.mmd_material.edge_mat_name == "":
+            edge_mat, mat_vtx = new_mmd_material(ob.active_material.name, ob.active_material, ob)
+        else:
+            edge_mat = bpy.data.materials[mat.mmd_material.edge_mat_name]
+
+        ob.material_slots[bpy.context.object.active_material_index+1].material = edge_mat
 
 def register():
     for typ, t in __properties.items():
