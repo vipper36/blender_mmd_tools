@@ -806,13 +806,6 @@ def new_mmd_material(name, mat, ob):
     mat.node_tree.links.new(lnn.inputs[1], pmatn.outputs[3])
     mat.node_tree.links.new(lnn.inputs[2], lmatn.outputs[3])
 
-#    tvecn = nodes.new("ShaderNodeMixRGB")
-#    tvecn.name = "Toon Vec Pre"
-#    tvecn.blend_type = "SUBTRACT"
-#    tvecn.inputs[0].default_value = 1.0
-#    tvecn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-#    mat.node_tree.links.new(tvecn.inputs[2], lnn.outputs[0])
-
     tvecn2 = nodes.new("ShaderNodeMixRGB")
     tvecn2.name = "Toon Vec"
     tvecn2.blend_type = "MULTIPLY"
@@ -873,15 +866,6 @@ def new_mmd_material(name, mat, ob):
 
     mat.node_tree.links.new(ng.inputs[5], mixtex.outputs[0])
 
-#    if i.texture != -1:
-#        texture_slot = fnMat.create_texture(self.__textureTable[i.texture])
-#        texture_slot.texture.use_mipmap = self.__use_mipmap
-#        self.__imageTable[len(self.__materialTable)-1] = texture_slot.texture.image
-#
-#        amat_tex.texture = texture_slot.texture
-#        texn.texture = texture_slot.texture
-#        utex.inputs[0].default_value = 1.0
-
     if mmd_mat.sphere_texture_type == 1:
         mat.node_tree.links.new(stexn.inputs[0], geon.outputs[5]) # Normal
         mixtex.blend_type = "MULTIPLY"
@@ -897,10 +881,6 @@ def new_mmd_material(name, mat, ob):
         mixtex.blend_type = "MULTIPLY"
         ustex.inputs[0].default_value = 1.0
         ustex.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-
-#    if i.sphere_texture != -1:
-#        texture_slot = fnMat.create_sphere_texture(self.__textureTable[i.sphere_texture])
-#        stexn.texture = texture_slot.texture
 
     edge_base_mat = bpy.data.materials.new(name="￥" + name + ".edge.base")
     edge_base_mat.use_shadeless = True
