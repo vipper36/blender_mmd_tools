@@ -68,6 +68,18 @@ def _setNameJ(prop, value):
 
     prop['name_j'] = prop_value
 
+def _updateTexturePreview(prop, context):
+    mat = prop.id_data
+    amat = mat.active_node_material
+    value = mat.mmd_material.preview_texture
+    if value == "NONE":
+        amat.active_texture_index = amat.active_texture_index # XXX: is this needed?
+    if value == "PRIMARY":
+        amat.active_texture_index = 0 #FnMaterial.__BASE_TEX_SLOT
+    if value == "SECONDARY":
+        amat.active_texture_index = 2 # FnMaterial.__SPHERE_TEX_SLOT
+    if value == "TOON":
+        amat.active_texture_index = 1 # FnMaterial.__TOON_TEX_SLOT
 
 class MMDVGForMaterial(bpy.types.PropertyGroup):
     obj_name = bpy.props.StringProperty(name="Object Name", default="")
@@ -253,5 +265,17 @@ class MMDMaterial(PropertyGroup):
 
     comment = StringProperty(
         name='Comment',
+        )
+
+    preview_texture = EnumProperty(
+        name='Preview Texture',
+        description='',
+        items = [
+            ("NONE",  'None',     '', 1),
+            ("PRIMARY",  'Primary',     '', 2),
+            ("SECONDARY",'Secondary',   '', 3),
+            ("TOON",     'Toon',        '', 4),
+            ],
+        update=_updateTexturePreview,
         )
 

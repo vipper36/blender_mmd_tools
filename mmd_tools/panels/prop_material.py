@@ -294,6 +294,39 @@ class MMDMaterialSlotPanel(Panel):
             split.template_ID(space, "pin_id")
             split.separator()
 
+class MMDPreviewPanel(Panel):
+    bl_idname = 'MATERIAL_PT_mmd_tools_preview'
+    bl_label = 'MMD Preview'
+    bl_space_type = 'PROPERTIES'
+    bl_region_type = 'WINDOW'
+    bl_context = 'material'
+
+    @classmethod
+    def poll(cls, context):
+        material = context.active_object.active_material
+        return material and material.mmd_material and not material.name.find(".edge")>=0 and \
+                context.scene.render.engine == 'MMD_TOOLS_ENGINE'
+
+    def draw(self, context):
+        mat = context.material
+        mmd_mat = mat.mmd_material
+        amat = mat.active_node_material
+        #fnMat = FnMaterial(mat)
+        tex = amat.active_texture#fnMat.get_texture()
+
+        layout = self.layout
+
+        c = layout.column(align=True)
+        c.label('Texture:')
+        r = c.row()
+        r.prop(mat.mmd_material, "preview_texture", expand=True)
+
+        if tex and mmd_mat.preview_texture != 'NONE':
+            layout.template_preview(tex, parent = context.material, slot=context.texture_slot)
+        elif mmd_mat.preview_texture == 'NONE':
+            layout.template_preview(context.material)
+
+
 class MMDMaterialPanel(Panel):
     bl_idname = 'MATERIAL_PT_mmd_tools_material'
     bl_label = 'MMD Material'

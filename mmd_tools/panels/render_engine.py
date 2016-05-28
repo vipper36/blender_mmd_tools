@@ -25,7 +25,7 @@ mmdtools_compat_panels = [
 	"DATA_PT_context_mesh",
 
 	"RENDER_PT_render",
-	"MATERIAL_PT_preview",
+#	"MATERIAL_PT_preview",
 
 	"CAMERA_MT_presets",
 	"SAFE_AREAS_MT_presets",
