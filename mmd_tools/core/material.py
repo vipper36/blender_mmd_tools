@@ -159,8 +159,6 @@ class FnMaterial(object):
         mat.node_tree.nodes["Tex"].texture = texture_slot.texture
         mat.node_tree.nodes["Alpha Mul"].material.texture_slots[0].texture = texture_slot.texture
         mat.node_tree.nodes["Use Tex"].inputs[0].default_value = 1.0
-
-        mat.active_node_material = smat
         return texture_slot
 
     def remove_texture(self):
@@ -170,7 +168,6 @@ class FnMaterial(object):
         mat.node_tree.nodes["Alpha Mul"].material.texture_slots[0].texture = None
         mat.node_tree.nodes["Use Tex"].inputs[0].default_value = 0.0
         self.__remove_texture(self.__BASE_TEX_SLOT)
-        mat.active_node_material = smat
 
     def __remove_texture(self, index):
         mat = self.__material
@@ -220,7 +217,6 @@ class FnMaterial(object):
         mat.node_tree.nodes["Sphere Tex"].texture = texture_slot.texture
         self.update_sphere_texture_type()
 
-        mat.active_node_material = smat
         return texture_slot
 
     def update_sphere_texture_type(self):
@@ -256,17 +252,14 @@ class FnMaterial(object):
             else:
                 mat.node_tree.links.new(mat.node_tree.nodes["Sphere Tex"].inputs[0], mat.node_tree.nodes["Geo"].outputs[5])
 
-        mat.active_node_material = smat
 
 
     def remove_sphere_texture(self):
         mat = self.__material
         mmd_mat = self.__material.mmd_material
-        smat = mat.node_tree.nodes["Solid"].material
         self.__remove_texture(self.__SPHERE_TEX_SLOT)
         mat.node_tree.nodes["Sphere Tex"].texture = None
         mat.node_tree.nodes["Use Sphere Tex"].inputs[0].default_value = 0.0
-        mat.active_node_material = smat
 
     def get_toon_texture(self):
         return self.__get_texture(self.__TOON_TEX_SLOT)
@@ -286,7 +279,7 @@ class FnMaterial(object):
         """
         mat = self.__material
         smat = mat.node_tree.nodes["Solid"].material
-        texture_slot = self.__material.texture_slots.create(self.__TOON_TEX_SLOT)
+        texture_slot = smat.texture_slots.create(self.__TOON_TEX_SLOT)
         texture_slot.texture_coords = 'NORMAL'
         texture_slot.blend_type = 'MULTIPLY'
         texture_slot.texture = self.__load_texture(filepath)
@@ -327,7 +320,6 @@ class FnMaterial(object):
         smat = mat.node_tree.nodes["Solid"].material
         smat.diffuse_color = self._mixDiffuseAndAmbient(mmd_mat) # for non-GLSL shader
         mat.node_tree.nodes["mmd_tools_shader"].inputs[4].default_value = list(mmd_mat.ambient_color) + [1.0]
-        mat.active_node_material = smat
 
     def update_diffuse_color(self):
         mat = self.__material
@@ -335,7 +327,6 @@ class FnMaterial(object):
         smat = mat.node_tree.nodes["Solid"].material
         smat.diffuse_color = self._mixDiffuseAndAmbient(mmd_mat) # for non-GLSL shader
         mat.node_tree.nodes["mmd_tools_shader"].inputs[0].default_value = list(mmd_mat.diffuse_color) + [1.0]
-        mat.active_node_material = smat
 
     def update_alpha(self):
         mat = self.__material
@@ -351,7 +342,6 @@ class FnMaterial(object):
         smat = mat.node_tree.nodes["Solid"].material
         smat.specular_color = mmd_mat.specular_color # for non-GLSL shader
         mat.node_tree.nodes["mmd_tools_shader"].inputs[2].default_value = list(mmd_mat.specular_color) + [1.0]
-        mat.active_node_material = smat
 
     def update_shininess(self):
         mat = self.__material
@@ -368,15 +358,12 @@ class FnMaterial(object):
         else:
             smat.specular_intensity = 0 # for non-GLSL shader
             spw_mat.specular_intensity = 0
-        mat.active_node_material = smat
 
     def update_is_double_sided(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        smat = mat.node_tree.nodes["Solid"].material
         mat.node_tree.nodes["Is Single"].inputs[1].default_value = float(mmd_mat.is_double_sided)
         mat.game_settings.use_backface_culling = not mmd_mat.is_double_sided
-        mat.active_node_material = smat
 
     def update_drop_shadow(self):
         mat = self.__material
@@ -387,7 +374,6 @@ class FnMaterial(object):
     def update_self_shadow_map(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        smat = mat.node_tree.nodes["Solid"].material
         mat.use_cast_shadows = mmd_mat.enabled_self_shadow_map or mmd_mat.enabled_drop_shadow
         mat.use_raytrace = mmd_mat.enabled_self_shadow_map
 
@@ -406,7 +392,6 @@ class FnMaterial(object):
     def update_enabled_toon_edge(self):
         mat = self.__material
         mmd_mat = mat.mmd_material
-        smat = mat.node_tree.nodes["Solid"].material
         edge_mat = bpy.data.materials[mmd_mat.edge_mat_name]
 #        if not hasattr(mat, 'line_color'): # freestyle line color
 #            return
@@ -414,7 +399,6 @@ class FnMaterial(object):
         edge_mat.node_tree.nodes["Edge Alpha"].inputs[0].default_value = float(mmd_mat.enabled_toon_edge) * mmd_mat.edge_color[3]
 
 #        mat.line_color[3] = min(int(mmd_mat.enabled_toon_edge), mmd_mat.edge_color[3])
-        mat.active_node_material = smat
 
     def update_edge_color(self):
         mat = self.__material
@@ -423,12 +407,10 @@ class FnMaterial(object):
 #        if not hasattr(mat, 'line_color'): # freestyle line color
 #            return
         mmd_mat = mat.mmd_material
-        smat = mat.node_tree.nodes["Solid"].material
         edge_mat.node_tree.nodes["Edge Base"].inputs[0].default_value = list(mmd_mat.edge_color)[0:3] + [1.0]
         edge_mat.node_tree.nodes["Edge Alpha"].inputs[0].default_value =float(mmd_mat.enabled_toon_edge) * mmd_mat.edge_color[3]
 #        r, g, b, a = mmd_mat.edge_color
 #        mat.line_color = [r, g, b, min(int(mmd_mat.enabled_toon_edge), a)]
-        mat.active_node_material = smat
 
     def update_edge_weight(self):
 #        pass
