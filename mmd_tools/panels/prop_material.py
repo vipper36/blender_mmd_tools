@@ -90,11 +90,11 @@ class MMDMaterialSlotRemove(bpy.types.Operator):
         if slot.material:
             edge_mat_name = slot.material.mmd_material.edge_mat_name
 
-            for vg in slot.material.mmd_material.vgs:
-                if vg.obj_name == ob.name:
-                    ob.modifiers.remove(ob.modifiers[vg.vgm_name])
-                    ob.vertex_groups.remove(ob.vertex_groups[vg.vg_name])
-                    break # XXX: multi assigned is broken. should check face's material_index
+#            for vg in slot.material.mmd_material.vgs:
+#                if vg.obj_name == ob.name:
+#                    ob.modifiers.remove(ob.modifiers[vg.vgm_name])
+#                    ob.vertex_groups.remove(ob.vertex_groups[vg.vg_name])
+#                    break # XXX: multi assigned is broken. should check face's material_index
 
         bpy.ops.object.material_slot_remove()
 

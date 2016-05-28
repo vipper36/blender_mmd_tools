@@ -61,7 +61,7 @@ def mmd_material_scene_update(scene):
 # weight update (should consider assigned None material)
 # also handle weight groups adding/removing
         if not mat or mat.mmd_material.edge_mat_name != "":
-            mmd_mat_vg_update(ob, False)
+            mmd_mat_vg_update(ob)
 
 #        if len(ob.material_slots) == 0:
 #            bpy.ops.object.material_slot_add() # XXX: cause recursive loop
@@ -74,7 +74,7 @@ def mmd_material_scene_update(scene):
         if not mat:
             edge_mat = None
         elif mat.mmd_material.edge_mat_name == "":
-            edge_mat, mat_vtx = new_mmd_material(mat.name, mat, ob, False)
+            edge_mat, mat_vtx = new_mmd_material(mat.name, mat, ob)
         else:
             edge_mat = bpy.data.materials[mat.mmd_material.edge_mat_name]
 

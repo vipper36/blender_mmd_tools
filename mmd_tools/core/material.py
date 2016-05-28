@@ -685,7 +685,7 @@ def mmd_shader_get():
 
     return shader
 
-def new_mmd_material(name, mat, ob, is_scene_update=True):
+def new_mmd_material(name, mat, ob):
     mmd_mat = mat.mmd_material
     mat.use_transparency = True
     mat.use_nodes = True
@@ -937,11 +937,11 @@ def new_mmd_material(name, mat, ob, is_scene_update=True):
 
     edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
 
-    mat_vtx = new_material_vg(name, mat, ob, is_scene_update)
+    mat_vtx = new_material_vg(name, mat, ob)
 
     return (edge_mat, mat_vtx)
 
-def new_material_vg(name, mat, ob, is_scene_update=True):
+def new_material_vg(name, mat, ob):
     mmd_mat = mat.mmd_material
     mat_vtx = ob.vertex_groups.new(name="￥" + name + ".vtx")
 
@@ -979,7 +979,7 @@ def new_material_vg(name, mat, ob, is_scene_update=True):
         cam_dist.use_add = True
         cam_dist.add_threshold = 0.0
         cam_dist.default_weight = 1.0
-    elif is_scene_update: # XXX: prevent recurcive loop
+    else:
         if bpy.context.scene.objects.active != ob:
             bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init') # XXX: should move to last
@@ -995,7 +995,7 @@ def new_material_vg(name, mat, ob, is_scene_update=True):
         cam_dist.proximity_mode = 'GEOMETRY'
         cam_dist.proximity_geometry = {'VERTEX'}
         cam_dist.mask_constant = 1.0
-    elif is_scene_update: # XXX: prevent recurcive loop
+    else:
         if bpy.context.scene.objects.active != ob:
             bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver') # XXX: should move to last
@@ -1013,7 +1013,7 @@ def new_material_vg(name, mat, ob, is_scene_update=True):
         cam_mix.mix_mode = 'MUL'
         cam_mix.mix_set = 'ALL'
         cam_mix.mask_constant = 1.0
-    elif is_scene_update: # XXX: prevent recurcive loop
+    else:
         if bpy.context.scene.objects.active != ob:
             bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer') # XXX: should move to last
@@ -1031,7 +1031,7 @@ def new_material_vg(name, mat, ob, is_scene_update=True):
         edge_mod.material_offset = 1
         edge_mod.use_flip_normals = True
         edge_mod.vertex_group = edge_vtx.name
-    elif is_scene_update: # XXX: prevent recurcive loop
+    else:
         if bpy.context.scene.objects.active != ob:
             bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify') # XXX: should move to last
@@ -1042,7 +1042,7 @@ def new_material_vg(name, mat, ob, is_scene_update=True):
     return mat_vtx
 
 # multi assigning also works
-def mmd_mat_vg_update(ob, is_scene_update=True):
+def mmd_mat_vg_update(ob):
 
     # update weight groups and modifiers
     vgs_idx = [-1] * len(ob.material_slots)
@@ -1070,7 +1070,7 @@ def mmd_mat_vg_update(ob, is_scene_update=True):
                 m.material.mmd_material.vgs.remove(j)
             n -= 1
         while n > 0 or vgs_idx[i] == -1:
-            new_material_vg(m.material.name, m.material, ob, is_scene_update)
+            new_material_vg(m.material.name, m.material, ob)
             vgs_idx[i] = len(m.material.mmd_material.vgs) -1
             n -= 1
 
