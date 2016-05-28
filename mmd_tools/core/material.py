@@ -375,7 +375,7 @@ class FnMaterial(object):
         mmd_mat = mat.mmd_material
         smat = mat.node_tree.nodes["Solid"].material
         mat.node_tree.nodes["Is Single"].inputs[1].default_value = float(mmd_mat.is_double_sided)
-#        smat.game_settings.use_backface_culling = not mmd_mat.is_double_sided #XXX
+        mat.game_settings.use_backface_culling = not mmd_mat.is_double_sided
         mat.active_node_material = smat
 
     def update_drop_shadow(self):
