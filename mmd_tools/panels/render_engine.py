@@ -289,10 +289,10 @@ def mmd_tools_scene_init():
 	cmn = nodes.new("ShaderNodeMixRGB")
 	shadow_catcher_mat.node_tree.links.new(cmn.inputs[0], nodes["Material"].outputs[1])
 	cmn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-	cmn.inputs[2].default_value = [0.7, 0.7, 0.7, 1.0] # why?
+	cmn.inputs[2].default_value = [(87 / 255) * (1.0/0.6), (87 / 255) * (1.0/0.6), (87 / 255) * (1.0/0.6), 1.0] # checked
 	cmn.blend_type = 'MULTIPLY'
 	shadow_catcher_mat.node_tree.links.new(nodes["Output"].inputs[0], cmn.outputs[0])
-	shadow_catcher_mat.node_tree.links.new(nodes["Output"].inputs[1], nodes["Material"].outputs[1])
+	nodes["Output"].inputs[1].default_value = 0.6 # checked
 
 	shadow_catcher_in = bpy.data.meshes.new("Shadow_Catcher_Mesh")
 
