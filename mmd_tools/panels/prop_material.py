@@ -2,7 +2,7 @@
 
 from bpy.types import Panel, UIList, UI_UL_list
 
-from mmd_tools.core.material import FnMaterial, new_mmd_material
+from mmd_tools.core.material import FnMaterial, new_mmd_material, mmd_mat_vg_update
 import bpy
 
 # https://www.blender.org/api/blender_python_api_2_77_release/bpy.types.UIList.html
@@ -90,7 +90,15 @@ class MMDMaterialSlotRemove(bpy.types.Operator):
         if slot.material:
             edge_mat_name = slot.material.mmd_material.edge_mat_name
 
+            for vg in slot.material.mmd_material.vgs:
+                if vg.obj_name == ob.name:
+                    ob.modifiers.remove(ob.modifiers[vg.vgm_name])
+                    ob.vertex_groups.remove(ob.vertex_groups[vg.vg_name])
+                    break # XXX: multi assigned is broken. should check face's material_index
+
         bpy.ops.object.material_slot_remove()
+
+        mmd_mat_vg_update(ob)
 
         if len(ob.material_slots) == 0:
             return {'FINISHED'}
@@ -159,14 +167,19 @@ class MMDMaterialSlotAssign(bpy.types.Operator):
         ob = context.object
         if bpy.context.object.active_material_index+1 >= len(ob.material_slots):
             bpy.ops.object.material_slot_add()
-        if slot.material.mmd_material.edge_mat_name == "":
+        if slot.material and slot.material.mmd_material.edge_mat_name == "":
             edge_mat, mat_vtx = new_mmd_material(slot.material.name, slot.material, ob)
-        ob.material_slots[bpy.context.object.active_material_index+1].material = \
-          bpy.data.materials[slot.material.mmd_material.edge_mat_name]
 
-        # TODO: update material vertex weight
+        if slot.material:
+            ob.material_slots[bpy.context.object.active_material_index+1].material = \
+              bpy.data.materials[slot.material.mmd_material.edge_mat_name]
+        else:
+            ob.material_slots[bpy.context.object.active_material_index+1].material = None
 
         bpy.ops.object.material_slot_assign()
+
+        mmd_mat_vg_update(ob)
+
         return {'FINISHED'}
 
 class MMDMaterialNew(bpy.types.Operator):
@@ -200,7 +213,17 @@ class MMDMaterialUnlink(bpy.types.Operator):
     bl_options = {'REGISTER'}
 
     def execute(self, context):
+        slot = context.material_slot
         ob = context.object
+
+        mmd_mat_vg_update(ob)
+#        if slot.material:
+#            for vg in slot.material.mmd_material.vgs:
+#                if vg.obj_name == ob.name:
+#                    ob.modifiers.remove(ob.modifiers[vg.vgm_name])
+#                    ob.vertex_groups.remove(ob.vertex_groups[vg.vg_name])
+#                    break # XXX: multi assigned is broken. should check face's material_index
+
         ob.material_slots[bpy.context.object.active_material_index].material = None
         if bpy.context.object.active_material_index+1 < len(ob.material_slots):
             ob.material_slots[bpy.context.object.active_material_index+1].material = None

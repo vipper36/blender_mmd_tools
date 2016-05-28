@@ -72,6 +72,7 @@ def _setNameJ(prop, value):
 class MMDVGForMaterial(bpy.types.PropertyGroup):
     obj_name = bpy.props.StringProperty(name="Object Name", default="")
     vg_name = bpy.props.StringProperty(name="Vertex Group Name", default="")
+    vgm_name = bpy.props.StringProperty(name="Vertex Weight Mix Modifier Name", default="")
 
 #===========================================
 # Property classes

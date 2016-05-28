@@ -4,7 +4,7 @@ import bpy
 
 from . import root, camera, material, bone, rigid_body
 from bpy.app.handlers import persistent
-from mmd_tools.core.material import new_mmd_material
+from mmd_tools.core.material import new_mmd_material, new_material_vg, mmd_mat_vg_update
 
 __properties = {
     bpy.types.Object: {
@@ -58,6 +58,11 @@ def mmd_material_scene_update(scene):
         if mat and (mat.name.find(".edge")>=0 or mat.name.find(".alp")>=0 or mat.name.find(".spw")>=0):
             mat = ob.active_material = None
 
+# weight update (should consider assigned None material)
+# also handle weight groups adding/removing
+        if not mat or mat.mmd_material.edge_mat_name != "":
+            mmd_mat_vg_update(ob, False)
+
 #        if len(ob.material_slots) == 0:
 #            bpy.ops.object.material_slot_add() # XXX: cause recursive loop
 
@@ -69,7 +74,7 @@ def mmd_material_scene_update(scene):
         if not mat:
             edge_mat = None
         elif mat.mmd_material.edge_mat_name == "":
-            edge_mat, mat_vtx = new_mmd_material(mat.name, mat, ob)
+            edge_mat, mat_vtx = new_mmd_material(mat.name, mat, ob, False)
         else:
             edge_mat = bpy.data.materials[mat.mmd_material.edge_mat_name]
 

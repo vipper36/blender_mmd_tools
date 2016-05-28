@@ -377,7 +377,7 @@ class FnMaterial(object):
         mat = self.__material
         mmd_mat = mat.mmd_material
         for i in mmd_mat.vgs:
-            bpy.data.objects[i.obj_name].modifiers[i.vg_name].mask_constant = mmd_mat.edge_weight/100.0
+            bpy.data.objects[i.obj_name].modifiers[i.vgm_name].mask_constant = mmd_mat.edge_weight/100.0
 
 def mmd_shader_get():
     groups = bpy.data.node_groups
@@ -685,7 +685,7 @@ def mmd_shader_get():
 
     return shader
 
-def new_mmd_material(name, mat, ob):
+def new_mmd_material(name, mat, ob, is_scene_update=True):
     mmd_mat = mat.mmd_material
     mat.use_transparency = True
     mat.use_nodes = True
@@ -937,6 +937,12 @@ def new_mmd_material(name, mat, ob):
 
     edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
 
+    mat_vtx = new_material_vg(name, mat, ob, is_scene_update)
+
+    return (edge_mat, mat_vtx)
+
+def new_material_vg(name, mat, ob, is_scene_update=True):
+    mmd_mat = mat.mmd_material
     mat_vtx = ob.vertex_groups.new(name="￥" + name + ".vtx")
 
     edge_vtx = None
@@ -958,7 +964,8 @@ def new_mmd_material(name, mat, ob):
 
     mat_vg = mmd_mat.vgs.add() # XXX: not so good
     mat_vg.obj_name = ob.name
-    mat_vg.vg_name = edge_mix.name
+    mat_vg.vg_name = mat_vtx.name
+    mat_vg.vgm_name = edge_mix.name
 
     cam_vtx = None
     if "cam_vtx" in ob.vertex_groups:
@@ -972,8 +979,9 @@ def new_mmd_material(name, mat, ob):
         cam_dist.use_add = True
         cam_dist.add_threshold = 0.0
         cam_dist.default_weight = 1.0
-    else:
-        bpy.context.scene.objects.active = ob
+    elif is_scene_update: # XXX: prevent recurcive loop
+        if bpy.context.scene.objects.active != ob:
+            bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init') # XXX: should move to last
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
@@ -987,8 +995,9 @@ def new_mmd_material(name, mat, ob):
         cam_dist.proximity_mode = 'GEOMETRY'
         cam_dist.proximity_geometry = {'VERTEX'}
         cam_dist.mask_constant = 1.0
-    else:
-        bpy.context.scene.objects.active = ob
+    elif is_scene_update: # XXX: prevent recurcive loop
+        if bpy.context.scene.objects.active != ob:
+            bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver') # XXX: should move to last
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
@@ -998,14 +1007,15 @@ def new_mmd_material(name, mat, ob):
     if not 'Camera Distance Mixer' in ob.modifiers:
         cam_mix = ob.modifiers.new(name='Camera Distance Mixer', type='VERTEX_WEIGHT_MIX')
         cam_mix.vertex_group_a = edge_vtx.name
-        cam_mix.default_weight_a = 1.0
+        cam_mix.default_weight_a = 0.0
         cam_mix.vertex_group_b = cam_vtx.name
         cam_mix.default_weight_b = 1.0
         cam_mix.mix_mode = 'MUL'
         cam_mix.mix_set = 'ALL'
         cam_mix.mask_constant = 1.0
-    else:
-        bpy.context.scene.objects.active = ob
+    elif is_scene_update: # XXX: prevent recurcive loop
+        if bpy.context.scene.objects.active != ob:
+            bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer') # XXX: should move to last
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
@@ -1021,12 +1031,95 @@ def new_mmd_material(name, mat, ob):
         edge_mod.material_offset = 1
         edge_mod.use_flip_normals = True
         edge_mod.vertex_group = edge_vtx.name
-    else:
-        bpy.context.scene.objects.active = ob
+    elif is_scene_update: # XXX: prevent recurcive loop
+        if bpy.context.scene.objects.active != ob:
+            bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify') # XXX: should move to last
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
 
-    return (edge_mat, mat_vtx)
+    return mat_vtx
+
+# multi assigning also works
+def mmd_mat_vg_update(ob, is_scene_update=True):
+
+    # update weight groups and modifiers
+    vgs_idx = [-1] * len(ob.material_slots)
+    mat_used_num = {}
+    for i, m in enumerate(ob.material_slots):
+        if not m.material or m.material.name.find(".edge")>=0:
+            continue
+
+        if not m.material in mat_used_num:
+            mat_used_num[m.material] = 0
+        else:
+            mat_used_num[m.material] += 1
+
+        n = mat_used_num[m.material]
+        for j, vg in enumerate(m.material.mmd_material.vgs):
+            if vg.obj_name != ob.name:
+                continue
+            if not vg.vgm_name in ob.modifiers or \
+               not vg.vg_name in ob.vertex_groups: # unbundled
+                m.material.mmd_material.vgs.remove(j)
+                continue
+            if n == 0:
+                vgs_idx[i] = j
+            if n < 0:
+                m.material.mmd_material.vgs.remove(j)
+            n -= 1
+        while n > 0 or vgs_idx[i] == -1:
+            new_material_vg(m.material.name, m.material, ob, is_scene_update)
+            vgs_idx[i] = len(m.material.mmd_material.vgs) -1
+            n -= 1
+
+    for mod in ob.modifiers:
+        if mod.type != 'VERTEX_WEIGHT_MIX' or mod.name.find(".mix") < 0:
+            continue
+        mod_used = False
+        for i, m in enumerate(ob.material_slots):
+            if not m.material or m.material.name.find(".edge")>=0:
+                continue
+            if mod.name == m.material.mmd_material.vgs[vgs_idx[i]].vgm_name:
+                mod_used = True
+
+        if not mod_used:
+            ob.modifiers.remove(mod)
+
+    for ovg in ob.vertex_groups:
+        if ovg.name.find(".vtx") < 0:
+            continue
+        ovg_used = False
+        for i, m in enumerate(ob.material_slots):
+            if not m.material or m.material.name.find(".edge")>=0:
+                continue
+            if ovg.name == m.material.mmd_material.vgs[vgs_idx[i]].vg_name:
+                ovg_used = True
+
+        if not ovg_used:
+            ob.vertex_groups.remove(ovg)
+
+    # update weights
+    mode = bpy.context.active_object.mode
+
+    if mode == 'EDIT':
+        bpy.ops.object.mode_set(mode='OBJECT')
+
+    for i, m in enumerate(ob.material_slots):
+        if not m.material or m.material.name.find(".edge") >= 0:
+            continue
+#        for j in m.material.mmd_material.vgs:
+#            if j.obj_name != ob.name:
+#                continue
+#            vg = ob.vertex_groups[j.vg_name]
+#            verts = [v for f in ob.data.polygons if f.material_index == i for v in f.vertices]
+#            vg.add(verts, 1.0, 'REPLACE')
+
+        vg = ob.vertex_groups[m.material.mmd_material.vgs[vgs_idx[i]].vg_name]
+        verts = [v for f in ob.data.polygons if f.material_index == i for v in f.vertices]
+        vg.add(verts, 1.0, 'REPLACE')
+
+    if mode == 'EDIT':
+        bpy.ops.object.mode_set(mode='EDIT')
 
