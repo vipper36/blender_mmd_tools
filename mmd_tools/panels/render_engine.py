@@ -288,7 +288,8 @@ def mmd_tools_scene_init():
 	bpy.context.area.spaces[0].viewport_shade='TEXTURED'
 	bpy.context.scene.game_settings.material_mode = 'GLSL'
 
-	bpy.context.space_data.show_backface_culling = True # for non-GLSL shader
+# TODO: should check logic for GLSL
+#	bpy.context.space_data.show_backface_culling = True # for non-GLSL shader
 
 def mmd_tools_scene_create():
 	bpy.ops.scene.new(type="NEW")
