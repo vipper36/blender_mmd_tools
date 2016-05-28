@@ -958,11 +958,9 @@ def new_material_vg(name, mat, ob):
     edge_mix.default_weight_b = 1.0
     edge_mix.mix_set = 'B'
     edge_mix.mix_mode = 'ADD'
-#    d = edge_mix.driver_new("mask_constant") # XXX: why error?
-#    d.driver.expression = "bpy.data.materials['"+name+"'].mmd_material.edge_weight/100.0"
     edge_mix.mask_constant = mmd_mat.edge_weight/100.0
 
-    mat_vg = mmd_mat.vgs.add() # XXX: not so good
+    mat_vg = mmd_mat.vgs.add()
     mat_vg.obj_name = ob.name
     mat_vg.vg_name = mat_vtx.name
     mat_vg.vgm_name = edge_mix.name
@@ -1025,8 +1023,8 @@ def new_material_vg(name, mat, ob):
     if not 'Edge Solidify' in ob.modifiers:
         edge_mod = ob.modifiers.new(name='Edge Solidify', type='SOLIDIFY')
         edge_mod.offset = 1.0
-        edge_mod.thickness = 2 * 100.0 # XXX: why?
-        edge_mod.thickness_clamp = 0.001 # XXX: why?
+        edge_mod.thickness = 2 * 100.0 # inner + outer
+        edge_mod.thickness_clamp = 0.001 # XXX: configurable would be good
         edge_mod.use_rim = False
         edge_mod.material_offset = 1
         edge_mod.use_flip_normals = True
@@ -1109,12 +1107,6 @@ def mmd_mat_vg_update(ob):
     for i, m in enumerate(ob.material_slots):
         if not m.material or m.material.name.find(".edge") >= 0:
             continue
-#        for j in m.material.mmd_material.vgs:
-#            if j.obj_name != ob.name:
-#                continue
-#            vg = ob.vertex_groups[j.vg_name]
-#            verts = [v for f in ob.data.polygons if f.material_index == i for v in f.vertices]
-#            vg.add(verts, 1.0, 'REPLACE')
 
         vg = ob.vertex_groups[m.material.mmd_material.vgs[vgs_idx[i]].vg_name]
         verts = [v for f in ob.data.polygons if f.material_index == i for v in f.vertices]

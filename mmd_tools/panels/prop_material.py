@@ -90,12 +90,6 @@ class MMDMaterialSlotRemove(bpy.types.Operator):
         if slot.material:
             edge_mat_name = slot.material.mmd_material.edge_mat_name
 
-#            for vg in slot.material.mmd_material.vgs:
-#                if vg.obj_name == ob.name:
-#                    ob.modifiers.remove(ob.modifiers[vg.vgm_name])
-#                    ob.vertex_groups.remove(ob.vertex_groups[vg.vg_name])
-#                    break # XXX: multi assigned is broken. should check face's material_index
-
         bpy.ops.object.material_slot_remove()
 
         mmd_mat_vg_update(ob)
@@ -217,12 +211,6 @@ class MMDMaterialUnlink(bpy.types.Operator):
         ob = context.object
 
         mmd_mat_vg_update(ob)
-#        if slot.material:
-#            for vg in slot.material.mmd_material.vgs:
-#                if vg.obj_name == ob.name:
-#                    ob.modifiers.remove(ob.modifiers[vg.vgm_name])
-#                    ob.vertex_groups.remove(ob.vertex_groups[vg.vg_name])
-#                    break # XXX: multi assigned is broken. should check face's material_index
 
         ob.material_slots[bpy.context.object.active_material_index].material = None
         if bpy.context.object.active_material_index+1 < len(ob.material_slots):
@@ -239,7 +227,7 @@ class MMDMaterialSlotPanel(Panel):
     @classmethod
     def poll(cls, context):
         return (context.material or context.object) and \
-                 context.scene.render.engine == 'mmd_tools_engine'
+                 context.scene.render.engine == 'MMD_TOOLS_ENGINE'
 
     def draw(self, context):
         layout = self.layout

@@ -3,22 +3,23 @@
 import bpy, math
 
 class MMDToolsRenderEngine(bpy.types.RenderEngine):
-	bl_idname = 'mmd_tools_engine'
+	bl_idname = 'MMD_TOOLS_ENGINE'
 	bl_label = 'mmd_tools Engine'
 
 # https://www.blender.org/api/blender_python_api_2_76_9/bpy.types.RenderEngine.html
 	bl_use_preview = True
-	# bl_use_shading_nodes = False
+	# bl_use_shading_nodes_custom = False # for debug
+	# bl_use_shading_nodes = True
 	# bl_use_game_engine = True
+	bl_use_save_buffers = True
 	bl_use_internal_engine = True
-	bl_use_native_node_tree = True
 	# bl_use_postprocess
 
 mmdtools_compat_panels = [
 
 	"DATA_PT_context_speaker",
 	"WORLD_PT_context_world",
-#	"MATERIAL_PT_context_material",
+#	"MATERIAL_PT_context_material", # for debug
 	"DATA_PT_context_camera",
 	"DATA_PT_context_lamp",
 	"DATA_PT_context_mesh",
@@ -103,7 +104,6 @@ def mmd_tools_scene_init():
 	active_scene.view_settings.use_curve_mapping = False
 	active_scene.sequencer_colorspace_settings.name = 'Linear'
 
-	# テクスチャ側
 	# disable color management (texture side)
 	# bpy.data.images["Untitled"].colorspace_settings.name = 'Linear'
 
@@ -131,12 +131,6 @@ def mmd_tools_scene_init():
 		camera_in = bpy.data.cameras.new("Camera")
 		camera = bpy.data.objects.new("Camera", camera_in)
 		active_scene.objects.link(camera)
-
-
-#	camera_look_at = camera.constraints.new(type='TRACK_TO')
-#	camera_look_at.target = tgt
-#	camera_look_at.up_axis = 'UP_Y'
-#	camera_look_at.track_axis = 'TRACK_NEGATIVE_Z'
 
 	# set 30 degree short-side FOV
 	# TODO: not good for portrait
@@ -169,7 +163,6 @@ def mmd_tools_scene_init():
 	bpy.ops.mesh.primitive_circle_add(vertices=64, radius=0.2, location=(0, 0, 0), rotation=(0, 0, 0))
 	bpy.ops.mesh.edge_face_add()
 	bpy.ops.object.mode_set(mode='OBJECT')
-#	tgt.draw_type = 'SOLID'
 
 	tgt_mat = bpy.data.materials.new(name="mmd_tools Cam Target")
 	tgt_mat.use_shadeless = True
@@ -180,22 +173,7 @@ def mmd_tools_scene_init():
 	tgt.parent = camera
 
 	tgt.rotation_euler = (0.0, 0.0, 0.0)
-#	tgt.location = (0, 0, 10)
 	tgt.location = (0, 0, -45)
-
-#	tgt.empty_draw_size = 1
-#	tgt.empty_draw_type = 'CIRCLE'
-
-#	tgt_look_at = tgt.constraints.new(type='TRACK_TO')
-#	tgt_look_at.target = bpy.context.scene.camera
-#	tgt_look_at.up_axis = 'UP_X'
-#	tgt_look_at.track_axis = 'TRACK_Y'
-
-#	tgt_locc = tgt.constraints.new(type='COPY_LOCATION')
-#	tgt_locc.target = camera
-#	tgt_locc.target_space = 'LOCAL'
-#	tgt_locc.owner_space = 'LOCAL'
-#	tgt_locc.use_offset = True
 
 
 	# Lock Camera to View like MMD
@@ -222,7 +200,7 @@ def mmd_tools_scene_init():
 
 	lamp_tgt = bpy.data.objects.new( "LAMP_Target", None )
 	active_scene.objects.link( lamp_tgt )
-	lamp_tgt.location = (0, 0, 0) # (0.5, -0.5, 1.0)
+	lamp_tgt.location = (0, 0, 0)
 	lamp_tgt.hide_select = True
 	lamp_tgt.hide = True
 	lamp_tgt.hide_render = True
@@ -234,7 +212,6 @@ def mmd_tools_scene_init():
 
 	# for ground
 	glamp_in = bpy.data.lamps.new(name="MMD_Lamp_Ground", type="SPOT")
-#	glamp_in.color = (0.3, 0.3, 0.3) # not working?
 	glamp_in.energy = 1.0
 	glamp_in.falloff_type = 'CONSTANT'
 	glamp_in.shadow_method = 'BUFFER_SHADOW'
@@ -243,7 +220,7 @@ def mmd_tools_scene_init():
 #	glamp_in.shadow_buffer_type = 'HALFWAY'
 #	glamp_in.shadow_sample_buffers = 'BUFFERS_4'
 #	glamp_in.shadow_buffer_size = 1024
-	glamp_in.shadow_buffer_type = 'IRREGULAR' # ???
+	glamp_in.shadow_buffer_type = 'IRREGULAR'
 	glamp_in.shadow_buffer_bias = 0.1 # ???
 	glamp_in.use_auto_clip_start = True
 	glamp_in.shadow_buffer_clip_end = 9999
@@ -263,7 +240,6 @@ def mmd_tools_scene_init():
 	glamp.hide = True
 
 	lamp.location = (0.5, -0.5, 1.0)
-#	glamp.location = (0.5 * 5000, -0.5 * 5000, 1.0 * 5000)
 
 	lamp_group = bpy.data.groups.new("MMD_Lamp_Ground")
 	lamp_group.objects.link(glamp)
@@ -271,7 +247,7 @@ def mmd_tools_scene_init():
 	shadow_catcher_mat_base = bpy.data.materials.new(name="mmd_tools Shadow Catcher Base")
 	shadow_catcher_mat_base.use_only_shadow = True
 	shadow_catcher_mat_base.use_shadows = True
-	shadow_catcher_mat_base.use_transparent_shadows = True # ???
+	shadow_catcher_mat_base.use_transparent_shadows = True # False in MMD but who cares?
 	shadow_catcher_mat_base.shadow_only_type = 'SHADOW_ONLY'
 	shadow_catcher_mat_base.light_group = lamp_group
 
@@ -296,7 +272,6 @@ def mmd_tools_scene_init():
 
 	shadow_catcher_in = bpy.data.meshes.new("Shadow_Catcher_Mesh")
 
-#	verts = [(-50.0, 50.0, 0.0), (-50.0, -50.0, 0.0), (50.0, -50.0, 0.0), (50.0, 50.0, 0.0)]
 	verts = [(-500.0, 500.0, 0.0), (-500.0, -500.0, 0.0), (500.0, -500.0, 0.0), (500.0, 500.0, 0.0)]
 	shadow_catcher_in.from_pydata(verts, [], [[0,1,2,3]])
 	shadow_catcher_in.update(calc_edges=True)
@@ -312,13 +287,12 @@ def mmd_tools_scene_init():
 
 	bpy.context.area.spaces[0].viewport_shade='TEXTURED'
 	bpy.context.scene.game_settings.material_mode = 'GLSL'
-#	bpy.context.space_data.show_backface_culling = True
 
 def mmd_tools_scene_create():
 	bpy.ops.scene.new(type="NEW")
 	scene = bpy.context.scene
 	scene.name = "MMD Scene"
-	scene.render.engine = "mmd_tools_engine"
+	scene.render.engine = "MMD_TOOLS_ENGINE"
 	mmd_tools_scene_init()
 
 #class MMDToolsInitScene(bpy.types.Operator):
@@ -348,33 +322,11 @@ def mmdtools_engine_add():
 	for cp in mmdtools_compat_panels:
 		if hasattr(bpy.types, cp):
 			panel = getattr(bpy.types, cp)
-			panel.COMPAT_ENGINES.add('mmd_tools_engine')
+			panel.COMPAT_ENGINES.add('MMD_TOOLS_ENGINE')
 
 def mmdtools_engine_remove():
 	for cp in mmdtools_compat_panels:
 		if hasattr(bpy.types, cp):
 			panel = getattr(bpy.types, cp)
-			panel.COMPAT_ENGINES.remove('mmd_tools_engine')
+			panel.COMPAT_ENGINES.remove('MMD_TOOLS_ENGINE')
 
-
-# for debug
-#def mmd_tools_panel_init_menu_draw(self, context):
-##	self.layout.operator("mmd_tools.init_scene")
-#	self.layout.operator("mmd_tools.create_scene")
-
-#def register():
-#	bpy.utils.register_class(MMDToolsRenderEngine)
-#	mmdtools_engine_add()
-#	bpy.utils.register_class(MMDToolsInitScene)
-#	bpy.utils.register_class(MMDToolsCreateScene)
-#	bpy.types.OBJECT_PT_mmd_tools_object.append(mmd_tools_panel_init_menu_draw)
-
-#def unregister():
-#	bpy.types.OBJECT_PT_mmd_tools_object.remove(mmd_tools_panel_init_menu_draw)
-#	bpy.utils.unregister_class(MMDToolsCreateScene)
-#	bpy.utils.unregister_class(MMDToolsInitScene)
-#	mmdtools_engine_remove()
-#	bpy.utils.unregister_class(MMDToolsRenderEngine)
-
-#if __name__ == "__main__":
-#	register()

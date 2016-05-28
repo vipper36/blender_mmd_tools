@@ -12,7 +12,7 @@ class SetGLSLShading(Operator):
 
     def execute(self, context):
         bpy.ops.mmd_tools.reset_shading()
-        bpy.context.scene.render.engine = 'mmd_tools_engine'
+        bpy.context.scene.render.engine = 'MMD_TOOLS_ENGINE'
         for i in filter(lambda x: x.type == 'MESH', context.scene.objects):
             for s in i.material_slots:
                 s.material.use_shadeless = False
@@ -36,7 +36,7 @@ class SetShadelessGLSLShading(Operator):
 
     def execute(self, context):
         bpy.ops.mmd_tools.reset_shading()
-        bpy.context.scene.render.engine = 'mmd_tools_engine'
+        bpy.context.scene.render.engine = 'MMD_TOOLS_ENGINE'
         for i in filter(lambda x: x.type == 'MESH', context.scene.objects):
             for s in i.material_slots:
                 s.material.use_shadeless = True
@@ -59,7 +59,7 @@ class ResetShading(Operator):
     bl_options = {'PRESET'}
 
     def execute(self, context):
-        bpy.context.scene.render.engine = 'mmd_tools_engine'
+        bpy.context.scene.render.engine = 'MMD_TOOLS_ENGINE'
         for i in filter(lambda x: x.type == 'MESH', context.scene.objects):
             for s in i.material_slots:
                 s.material.use_shadeless = False

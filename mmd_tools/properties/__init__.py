@@ -51,7 +51,7 @@ __properties = {
 def mmd_material_scene_update(scene):
     if hasattr(bpy.context, "object") and bpy.context.object and bpy.context.object.active_material and \
        bpy.context.object.active_material.is_updated and \
-       bpy.context.scene.render.engine == 'mmd_tools_engine':
+       bpy.context.scene.render.engine == 'MMD_TOOLS_ENGINE':
         ob = bpy.context.object
         mat = ob.active_material
 
