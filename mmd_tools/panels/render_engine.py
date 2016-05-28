@@ -167,6 +167,7 @@ def mmd_tools_scene_init():
 	tgt_mat = bpy.data.materials.new(name="mmd_tools Cam Target")
 	tgt_mat.use_shadeless = True
 	tgt_mat.diffuse_color = (0.929412, 0.0784314, 0.356863)
+	tgt_mat.game_settings.use_backface_culling = False
 	tgt_data.materials.append(tgt_mat)
 	tgt.show_x_ray = True
 
