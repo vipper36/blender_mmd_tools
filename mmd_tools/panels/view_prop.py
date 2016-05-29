@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bpy.types import Panel
+from bpy.types import Panel, Operator
 import bpy
 
 import mmd_tools.core.model as mmd_model
@@ -47,6 +47,26 @@ class MMDModelObjectDisplayPanel(_PanelBase, Panel):
             row.prop(root.mmd_root, 'use_toon_texture', text='Toon Texture')
             row.prop(root.mmd_root, 'use_sphere_texture', text='Sphere Texture')
 
+class MMDSetBackgroundToBlack(Operator):
+    bl_idname = 'mmd_tools.set_background_to_black'
+    bl_label = 'Set Background to Black'
+    bl_description = ''
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        context.scene.world.horizon_color = [0.0, 0.0, 0.0]
+        return {'FINISHED'}
+
+class MMDSetBackgroundToWhite(Operator):
+    bl_idname = 'mmd_tools.set_background_to_white'
+    bl_label = 'Set Background to White'
+    bl_description = ''
+    bl_options = {'UNDO'}
+
+    def execute(self, context):
+        context.scene.world.horizon_color = [1.0, 1.0, 1.0]
+        return {'FINISHED'}
+
 class MMDViewPanel(_PanelBase, Panel):
     bl_idname = 'OBJECT_PT_mmd_tools_view'
     bl_label = 'MMD View'
@@ -62,6 +82,10 @@ class MMDViewPanel(_PanelBase, Panel):
             layout.label("Self Shadow:")
             layout.prop(context.scene.render, 'use_raytrace',
                         text='Enable')
+            layout.label("Background:")
+            r = layout.row(align=True)
+            r.operator('mmd_tools.set_background_to_white', text='To white')
+            r.operator('mmd_tools.set_background_to_black', text='To black')
 
 #class MMDViewPanel(_PanelBase, Panel):
 #    bl_idname = 'OBJECT_PT_mmd_tools_view'
