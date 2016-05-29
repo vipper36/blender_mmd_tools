@@ -30,10 +30,11 @@ If you don't care edge shaders, you can switch back to normal Blender operations
 1. press [N]
 2. uncheck "Lock Camera To View" option
 
-### Resolution
-- MMD: 512x288
+### Resolution and Frame rate
+- MMD: 512x288, 30fps
 
 I know it's dated but anyway I kept it for now.
+You can manually install more presets which are in presets/render/*.
 
 ### Lamp Location
 - MMD: X, Y, Z = (from -1 to 1, from -1 to 1, from -1 to 1)
