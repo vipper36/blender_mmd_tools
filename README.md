@@ -32,6 +32,7 @@ If you don't care edge shaders, you can switch back to normal Blender operations
 
 ### Resolution
 - MMD: 512x288
+
 I know it's dated but anyway I kept it for now.
 
 ### Lamp Location
@@ -89,7 +90,7 @@ If you want to use more smoothed toon, there are two options.
 
 ### Theme
 This is still in-development and not good for normal use.
-If you want to use it, just install presets/interface_theme/*.xml from blender's theme installing dialog.
+If you want to use it, just install presets/interface_theme/*.xml via "Install Theme" feature in blender.
 
 ## License
 &copy; 2012-2016 sugiany, et al.
