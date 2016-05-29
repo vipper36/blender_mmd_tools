@@ -1,180 +1,98 @@
-mmd_tools
-===========
+# more_imitating branch of mmd_tools
 
-概要
-----
-mmd_toolsはblender用MMD(MikuMikuDance)モデルデータ(.pmd, .pmx)およびモーションデータ(.vmd)インポータです。
+This is a fork version of mmd_tools.
+This branch implemented more accurate MMD default shader but causes massive slowdown.
 
-### 環境
+これはmmd_toolsの派生品です。
+このブランチは、より正確なMMD標準シェーダーを実装していますが、大きな速度低下を起こしています。
 
-#### 対応バージョン
-blender 2.67以降
+## System Requirements / 動作環境
 
-#### 動作確認環境
-Windows 7 + blender 2.67 64bit
+I tested on Blender 2.77 but it should work on other enviroments.
 
+Blender 2.77でテストしましたが、他の環境でも動くはずです。
 
-注意
-----
+## Technical Notes for more_imitating branch
+### Units
+- 1BU (Blender Unit) = 1 MMD Unit = 8cm
+- 1 blender grid = 1 mikucell = 40cm
 
-現在のmasterブランチは、v0.5.0向け開発バージョンです。
+### Axis
+- Blender: right-handed Z-up
+- MMD: left-handed Y-up
 
-旧バージョンv0.4系列のバグ修正等はメンテナンスブランチ [0.4-main](https://github.com/sugiany/blender_mmd_tools/tree/0.4-main) で行います。
+### Camera
+This branch introduces non-Blender and more MMD-like camera operations.
+This is because mmd_tools toon shader depends on Camera distance.
 
-また、UIや使用方法が変わっているため、注意してください。
+If you don't care toon shaders, you can switch back to normal Blender operations:
+1. press [N]
+2. uncheck "Lock Camera To View" option
 
+### Resolution
+- MMD: 512x288
+I know it's dated but anyway I kept it for now.
 
-使用方法
----------
-### ダウンロード
+### Lamp Location
+- MMD: X, Y, Z = (from -1 to 1, from -1 to 1, from -1 to 1)
 
-* mmd_toolsはGitHubで公開しています。
-    * https://github.com/sugiany/blender_mmd_tools
-* 安定版は下記リンクから最新版をダウンロードしてください。
-    * [Tags](https://github.com/sugiany/blender_mmd_tools/tags)
-* 開発版はmasterブランチのHEADを取得してください。基本的に動作確認済みです。
-    * [master.zip](https://github.com/sugiany/blender_mmd_tools/archive/master.zip)
+### Ground Shadow
+Ground Shadow does not work in realtime but works in offline rendering.
+for the Ground Shadow, This branch adds a Shadow Catcher object.
 
-### インストール
-展開したアーカイブ内のmmd_toolsディレクトリをaddonディレクトリにコピーしてください。
+### Shader
+MMD default shader basically uses the following forma (not accurate).
+- color: (ambient + phong + flat diffuse) * tex * (binarized) ambient lambert
+- alpha: alpha * tex alpha
 
-    .../blender-2.67-windows64/2.67/scripts/addons/
+This branch currently supported **all** MMD material parameters. The following is a list of the current status.
+<dl>
+  <dt>almost compatible in the realtime and offline rendering:</dt>
+  <dd>diffuse, alpha, specular, shininess (hardness), ambient,
+    texture, sphere texture, sub texture, shared toon texture,
+    custom toon texture, double sided, edge color, edge alpha</dd>
+  <dt>almost compatible in the offline rendering:</dt>
+  <dd>self shadow, self shadow map, ground shadow</dd>
+  <dt>somewhat compatible in the realtime and offline rendering:</dt>
+  <dd>edge size</dd>
+</dl>
 
-### Addonのロード
-1. User PrefernceのAddonsから"Object: mmd_tools"探してチェックを入れてください。
-   (検索ボックスにmmdと入力すると簡単に探せます。)
-2. 3D View左のパネルにMMD Toolsのパネルが表示されます。
+Note: the self shadow uses ray shadow and the ground shadow uses white-colord buffer shadow.
+ This is because of Blender's limitations but it causes some problems.
+ e.g. (non-MMD) mirror material does not reflect materials without "self shadow".
 
-### MMDモデルデータ読み込み
-1. _Object_ パネルの"Model/Import"ボタンを選択してください。
-2. ファイル選択画面でpmxファイルを選択すると、選択されたモデルをインポートします。
+ In blender, buffer shadows are only usable in Spot Lamps.
+ so the Spot Lamp is placed with near-directional lamp parameters.
+ the shadow catcher actually recieves shadow alpha and
+ converts the alpha to a shadow color and alpha.
+ the shadow catcher ignores Ray Shadows, using a Light Group.
 
-### モーションデータの読み込み
-1. MMDモデルを読み込み、モデルのメッシュ等を選択してください。
-2. _MMD Model Tools_ パネル内の _Import Motion_ ボタンを押下してください。
-3. 剛体シミュレーションが必要な場合は、 同パネル内の _Build_ ボタンを押下してください。
+#### non-MMD shaders
+You can use non-MMD shaders with hacks.
 
+##### Custom specular
+1. change Render Engine to Blender Render
+2. add new material slot
+3. append *.spw material to empty slot
+2. change specular model (e.g. from Phong to Toon)
 
-各種機能詳細
--------------------------------
-### Import Model
-MMDモデルデータをインポートします。対応形式はpmdファイルおよびpmx(ver2.0)ファイルです。
-各オプションはデフォルト推薦です。
-剛体情報を読み込みたくない場合は、"import only non dynamics rigid bodies"オプションをオンにしてください。
+##### Custom toon/diffuse
+1. change Render Engine to Blender Render
+2. add new material slot
+3. append "mmd_tools Node Base" or "mmd_tools Node Base NoShadow" material to empty slot
+4. change diffuse model or enable (fake) SSS (e.g. rgb: [1.0, 1.0, 1.0], rgb radius: [0.125, 0.125, 0.125])
 
-* scale
-    * スケールです。Import Motion時のスケールと統一してください。
-* rename bones
-    * ボーンの名前をblenderに適した名前にリネームします。（右腕→腕.Lなど）
-* hide rigid bodies and joints
-    *  剛体情報を持つ各種オブジェクトを非表示にします。
-* import only non dynamics rigid bodies
-    * ボーン追従の剛体のみインポートします。clothやsoft bodyを使用する等、剛体情報が不要な場合に使用してください。
-* ignore non collision groups
-    * 非衝突グループを読み込みません。モデルの読み込み時にフリーズしてしまう場合に使用してください。
-* distance of ignore collisions
-    * 非衝突グループの解決範囲を指定します。
-* use MIP map for UV textures
-    * Blenderの自動ミップマップ生成機能のオンオフを指定します。
-    * 一部アルファチャンネルを持つテクスチャで紫色のノイズが発生する場合はオフにしてください。
-* influence of .sph textures
-    * スフィアマップの強度を指定します。(0.0～1.0)
-* influence of .spa textures
-    * スフィアマップの強度を指定します。(0.0～1.0)
+If you want to use more smoothed toon, there are two options.
+* just use the (fake) SSS. it uses blur and it makes things smooth.
+* or transfer custom normals from created smoothed model to the model.
 
-### Import Motion
-現在選択中のArmature、MeshおよびCameraにvmdファイルのモーションを適用します。
+### Theme
+This is still in-development and not good for normal use.
+If you want to use it, just install presets/interface_theme/*.xml from blender's theme installing dialog.
 
-* scale
-    * スケールです。Import Model時のスケールと統一してください。
-* margin
-    * 物理シミュレーション用の余白フレームです。
-    * モーションの初期位置が原点から大きく離れている場合、モーション開始時にモデルが瞬間移動してしまうため物理シミュレーションが破綻します。
-    この現象を回避するため、blenderのタイムライン開始とモーション開始の間に余白を挿入します。
-    * モーション開始時に剛体を安定させる効果もあります。
-* update scene settings
-    * モーションデータ読み込み後にフレームレンジおよびフレームレートの自動設定を行います。
-    * フレームレンジは現在シーン中に存在するアニメーションを全て再生するために必要なレンジを設定します。
-    * フレームレートを30fpsに変更します。
+## License
+&copy; 2012-2016 sugiany, et al.
+Distributed under the MIT License.
 
-### Set frame range
-フレームレンジは現在シーン中に存在するアニメーションを全て再生するために必要なレンジを設定します。
-また、フレームレートを30fpsに変更します。
-* Import vmdのupdate scene settingsオプションと同じ機能です。
-
-### View
-
-#### GLSL
-GLSLモードで表示するための必要設定を自動で行います。
-* ShadingをGLSLに切り替えます。
-* 現在のシーン内全てのマテリアルのshadelessをオフにします。
-* Hemiライトを追加します。
-* ボタンを押した3DViewのシェーディングをTexturedに変更します。
-
-#### Shadeless
-Shadelessモードで表示するための必要設定を自動で行います。
-* ShadingをGLSLに切り替えます。
-* 現在のシーン内全てのマテリアルをshadelessにします。
-* ボタンを押した3DViewのシェーディングをTexturedに変更します。
-
-#### Cycles
-シーン内に存在する全てのマテリアルをCycles用に変換します。
-* 何の根拠もない適当な変換です。
-* 完了メッセージなどは表示されません。マテリアルパネルから変換されているかどうか確認してください。
-* ボタンを押した3DViewのシェーディングをMaterialに変更します。
-    * 3DViewのシェーディングをRenderedに変更すれば、Cyclesのリアルタイムプレビューが可能です。
-* ライティングは変更しません。設定が面倒な場合は、WorldのColorを白(1,1,1)に変更すればそれなりに見えます。
-
-#### Reset
-GLSLボタンで変更した内容を初期状態に戻します。
-
-#### Separate by materials
-選択したメッシュオブジェクトのメッシュをマテリアル毎に分割し、分割後のオブジェクト名を各マテリアル名に変更します。
-* blenderデフォルトの"Separate"→"By Material"機能を使用しています。
-
-
-その他
-------
-* カメラとキャラクタモーションが別ファイルの場合は、ArmatureとMeshを選択してキャラモーション、Cameraを選択してカメラモーションというように2回に分けてインポートしてください。
-* モーションデータのインポート時はボーン名を利用して各ボーンにモーションを適用します。
-    * ボーン名と構造がMMDモデルと一致していれば、オリジナルのモデル等にもモーションのインポートが可能です。
-    * mmd_tools以外の方法によってMMDモデルを読み込む場合、ボーン名をMMDモデルと一致させてください。
-* カメラはMMD_Cameraという名前のEmptyオブジェクトを生成し、このオブジェクトにモーションをアサインします。
-* 複数のモーションをインポートする場合やフレームにオフセットをつけてインポートしたい場合は、NLAエディタでアニメーションを編集してください。
-* アニメーションの初期位置がモデルの原点と大きく離れている場合、剛体シミュレーションが破綻することがあります。その際は、vmdインポートパラメータ"margin"を大きくしてください。
-* モーションデータは物理シミュレーションの破綻を防止するため"余白"が追加されます。この余白はvmdインポート時に指定する"margin"の値です。
-    * インポートしたモーション本体は"margin"の値+1フレーム目から開始されます。（例：margin=5の場合、6フレーム目がvmdモーションの0フレーム目になります）
-* pmxインポートについて
-    * 頂点のウェイト情報がSDEFの場合、BDEF2と同じ扱いを行います。
-    * 頂点モーフ以外のモーフ情報には対応していません。
-    * 剛体設定の"物理+ボーン位置合わせ"は"物理演算"として扱います。
-* 複数のpmxファイルをインポートする場合はscaleを統一してください。
-
-
-既知の問題
-----------
-* 剛体の非衝突グループを強引に解決しているため、剛体の数が多いモデルを読み込むとフリーズすることがあります。
-    * 正確には完全なフリーズではなく、読み込みに異常な時間がかかっているだけです。
-    * フリーズするモデルを読み込む場合は、"ignore non collision groups"オプションにチェックを入れてください。
-    * 上記オプションをオンにした場合、意図しない剛体同士が干渉し、正常に物理シミュレーションが動作しない可能性があります。
-* 「移動付与」ボーンは正常に動作しません。
-* オブジェクトの座標（rootのemptyおよびArmature）を原点から移動させると、ボーン構造が破綻することがあります。
-    * モデルを移動させたい場合は、オブジェクトモードでの移動は行わず、Pose Modeで「センター」や「全ての親」などのボーンを移動させてください。
-    * 現状、解決が難しいため、オブジェクトモードでの移動操作は行わないことをおすすめします。
-
-
-バグ・要望・質問等
-------------------
-GitHubのIssueに登録するか、twitterでどうぞ。  
-[@sugiany](https://twitter.com/sugiany)
-
-
-変更履歴
---------
-CHANGELOG.mdを参照してください。
-
-
-ライセンス
-----------
-&copy; 2012-2014 sugiany  
-Distributed under the MIT License.  
+## original document
+[README_ORIG.md](README_ORIG.md)
