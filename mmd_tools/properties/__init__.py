@@ -11,6 +11,19 @@ from mmd_tools.core.material import new_mmd_material, new_material_vg, mmd_mat_v
 #    if wo.mmd_shadow_catcher in bpy.data.objects:
 #        bpy.data.objects[wo.mmd_shadow_catcher].hide_render = not wo.is_mmd_ground_shadow
 
+def _updateGroundShadowTransparent(prop, context):
+    wo = prop.id_data
+    if wo.mmd_shadow_catcher in bpy.data.objects:
+        nodes = bpy.data.objects[wo.mmd_shadow_catcher].active_material.node_tree.nodes
+        if wo.is_mmd_ground_shadow_transparent:
+            nodes["Alpha to New Alpha"].inputs[1].default_value = 0.6
+            nodes["Alpha to Color"].inputs[2].default_value = \
+              [(87 / 255) * (1.0/0.6), (87 / 255) * (1.0/0.6), (87 / 255) * (1.0/0.6), 1.0]
+        else:
+            nodes["Alpha to New Alpha"].inputs[1].default_value = 1.0
+            nodes["Alpha to Color"].inputs[2].default_value = \
+              [0x9d / 255, 0x9d / 255, 0x9d / 255, 1.0]
+
 __properties = {
     bpy.types.Object: {
         'mmd_type': bpy.props.EnumProperty(
@@ -52,6 +65,7 @@ __properties = {
     bpy.types.World: {
         'mmd_shadow_catcher': bpy.props.StringProperty(name='shadow_catcher'),
 #        'is_mmd_ground_shadow': bpy.props.BoolProperty(name='is_mmd_ground_shadow', default=True, update=_updateGroundShadow),
+        'is_mmd_ground_shadow_transparent': bpy.props.BoolProperty(name='is_mmd_ground_shadow_transparent', default=True, update=_updateGroundShadowTransparent),
         },
     }
 

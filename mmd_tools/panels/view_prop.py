@@ -54,8 +54,11 @@ class MMDViewPanel(_PanelBase, Panel):
         layout = self.layout
 #        layout.prop(context.scene.world, 'is_mmd_ground_shadow', text='Ground Shadow')
         if context.scene.world.mmd_shadow_catcher in bpy.data.objects:
+            layout.label("Ground Shadow:")
             layout.prop(bpy.data.objects[context.scene.world.mmd_shadow_catcher], 'hide_render',
-                        text='Ground Shadow')
+                        text='Disable')
+            layout.prop(context.scene.world, 'is_mmd_ground_shadow_transparent',
+                        text='Transparent')
 
 
 #class MMDViewPanel(_PanelBase, Panel):
