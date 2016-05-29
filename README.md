@@ -67,10 +67,10 @@ Note: the self shadow uses ray shadow and the ground shadow uses white-colord bu
  so the Spot Lamp is placed with near-directional lamp parameters.
  the shadow catcher actually recieves shadow alpha and
  converts the alpha to a shadow color and alpha.
- the shadow catcher ignores Ray Shadows, using a Light Group.
+ the shadow catcher ignores Ray Shadows, by using a Light Group.
 
-#### non-MMD shaders
-You can use non-MMD shaders with hacks.
+#### Custom shaders
+You can also use MME-like custom shaders with hacks.
 
 ##### Custom specular
 1. change Render Engine to Blender Render
