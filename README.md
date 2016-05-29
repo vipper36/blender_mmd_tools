@@ -26,6 +26,7 @@ This branch introduces non-Blender and more MMD-like camera operations.
 This is because mmd_tools edge shader depends on Camera distance.
 
 If you don't care edge shaders, you can switch back to normal Blender operations:
+
 1. press [N]
 2. uncheck "Lock Camera To View" option
 
