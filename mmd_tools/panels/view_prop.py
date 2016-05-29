@@ -86,6 +86,11 @@ class MMDViewPanel(_PanelBase, Panel):
             r = layout.row(align=True)
             r.operator('mmd_tools.set_background_to_white', text='To white')
             r.operator('mmd_tools.set_background_to_black', text='To black')
+            layout.label("Transparent Override:")
+            r = layout.row(align=True)
+            tror_mat = bpy.data.materials["mmd_tools Transparent Override"]
+#            layout.prop(tror_mat, 'use_transparency', text='Enable')
+            layout.prop(tror_mat, 'alpha', text='Alpha')
 
 #class MMDViewPanel(_PanelBase, Panel):
 #    bl_idname = 'OBJECT_PT_mmd_tools_view'

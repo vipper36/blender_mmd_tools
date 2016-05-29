@@ -437,6 +437,11 @@ def mmd_shader_get():
     l_mat.diffuse_fresnel_factor = 0.0
     l_mat.use_shadows = False
 
+    t_mat = bpy.data.materials.new(name="mmd_tools Transparent Override")
+    t_mat.use_shadeless = True
+#    t_mat.use_transparency = False # XXX: doesn't work?
+    t_mat.alpha = 1.0
+
     # type, input, params, name
     engine_shader = [
         ["NodeGroupInput", None, None, "mmd_tools Group Input"],
@@ -623,7 +628,46 @@ def mmd_shader_get():
         {"blend_type": "MULTIPLY", "use_clamp": True}, "mmd_tools Mul"],
     # ["ShaderNodeOutput", [["mmd_tools Add", 0], 1.0], None, "mmd_tools Output"],
     # ["ShaderNodeRGB", , , ],
-        ["NodeGroupOutput", [["mmd_tools Mul", 0]], None,
+
+        ["ShaderNodeMaterial", [
+            [1.0, 1.0, 1.0, 1.0],
+            [0.0, 0.0, 0.0, 1.0],
+            1.0,
+            [0.0, 0.0, 0.0],
+        ], {
+            "use_diffuse": False,
+            "use_specular": False,
+            "invert_normal": False,
+            "material": bpy.data.materials["mmd_tools Transparent Override"]},
+            "mmd_tools TP OR Data"],
+
+        ["ShaderNodeMath",[
+            ["mmd_tools TP OR Data", 1],
+            1.0,
+        ], {"operation": "LESS_THAN"}, "mmd_tools Use TR OR"],
+
+        ["ShaderNodeMath",[
+            1.0,
+            ["mmd_tools Use TR OR", 0],
+        ], {"operation": "SUBTRACT"}, "mmd_tools Unuse TR OR"],
+
+        ["ShaderNodeMath",[
+            ["mmd_tools Use TR OR", 0],
+            ["mmd_tools TP OR Data", 1],
+        ], {"operation": "MULTIPLY"}, "mmd_tools Used TP OR"],
+
+        ["ShaderNodeMath",[
+            ["mmd_tools Group Input", 10],
+            ["mmd_tools Unuse TR OR", 0],
+        ], {"operation": "MULTIPLY"}, "mmd_tools Used Alpha"],
+
+        ["ShaderNodeMath",[
+            ["mmd_tools Used TP OR", 0],
+            ["mmd_tools Used Alpha", 0],
+        ], {"operation": "ADD"}, "mmd_tools Alpha"],
+
+
+        ["NodeGroupOutput", [["mmd_tools Mul", 0], ["mmd_tools Alpha", 0]], None,
             "mmd_tools Group Output"],
     ]
 
@@ -723,6 +767,8 @@ def mmd_shader_get():
     shader.inputs[8].default_value = [1.0, 1.0, 1.0, 1.0]
     shader.inputs[9].name = "UseToonTex"
     shader.inputs[9].default_value = 0.0
+    shader.inputs[10].name = "Alpha"
+    shader.inputs[10].default_value = 0.0
 
     return shader
 
@@ -814,7 +860,8 @@ def new_mmd_material(name, mat, ob):
     mat.node_tree.links.new(fan.inputs[0], an.outputs[1])
     mat.node_tree.links.new(fan.inputs[1], issn.outputs[0])
 
-    mat.node_tree.links.new(nodes["Output"].inputs[1], fan.outputs[0])
+    mat.node_tree.links.new(ng.inputs[10], fan.outputs[0])
+    mat.node_tree.links.new(nodes["Output"].inputs[1], ng.outputs[1])
 
 
     mat.use_cast_buffer_shadows = mmd_mat.enabled_drop_shadow
@@ -975,7 +1022,18 @@ def new_mmd_material(name, mat, ob):
     edge_mat.node_tree.links.new(use_edge_n.inputs[1], edge_geon.outputs[8])
     use_edge_n.operation = "MULTIPLY"
 
-    edge_mat.node_tree.links.new(nodes["Output"].inputs[1], use_edge_n.outputs[0])
+    edge_trorn = nodes.new("ShaderNodeMaterial")
+    edge_trorn.name = "Edge Transparent Override"
+    edge_trorn.material = bpy.data.materials["mmd_tools Transparent Override"]
+
+    # corner-cutting
+    edge_an = nodes.new("ShaderNodeMath")
+    edge_an.name = "Edge Alpha"
+    edge_mat.node_tree.links.new(edge_an.inputs[0], edge_trorn.outputs[1])
+    edge_mat.node_tree.links.new(edge_an.inputs[1], use_edge_n.outputs[0])
+    edge_an.operation = "MULTIPLY"
+
+    edge_mat.node_tree.links.new(nodes["Output"].inputs[1], edge_an.outputs[0])
 
     mat_vtx = new_material_vg(name, mat, ob)
 
