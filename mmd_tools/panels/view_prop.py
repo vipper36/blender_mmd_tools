@@ -47,17 +47,18 @@ class MMDModelObjectDisplayPanel(_PanelBase, Panel):
             row.prop(root.mmd_root, 'use_sphere_texture', text='Sphere Texture')
 
 
-class MMDViewPanel(_PanelBase, Panel):
-    bl_idname = 'OBJECT_PT_mmd_tools_view'
-    bl_label = 'MMD Shading'
+#class MMDViewPanel(_PanelBase, Panel):
+#    bl_idname = 'OBJECT_PT_mmd_tools_view'
+#    bl_label = 'MMD Shading'
+#
+#    def draw(self, context):
+#        layout = self.layout
+#
+#        col = layout.column()
+#        c = col.column(align=True)
+#        r = c.row(align=True)
+#        r.operator('mmd_tools.set_glsl_shading', text='GLSL')
+#        r.operator('mmd_tools.set_shadeless_glsl_shading', text='Shadeless')
+#        r = c.row(align=True)
+#        r.operator('mmd_tools.reset_shading', text='Reset')
 
-    def draw(self, context):
-        layout = self.layout
-
-        col = layout.column()
-        c = col.column(align=True)
-        r = c.row(align=True)
-        r.operator('mmd_tools.set_glsl_shading', text='GLSL')
-        r.operator('mmd_tools.set_shadeless_glsl_shading', text='Shadeless')
-        r = c.row(align=True)
-        r.operator('mmd_tools.reset_shading', text='Reset')
