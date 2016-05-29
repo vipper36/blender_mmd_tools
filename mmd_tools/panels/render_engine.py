@@ -286,6 +286,8 @@ def mmd_tools_scene_init():
 
 	active_scene.objects.link(shadow_catcher)
 
+	bpy.context.scene.world.mmd_shadow_catcher = shadow_catcher.name
+
 	bpy.context.area.spaces[0].viewport_shade='TEXTURED'
 	bpy.context.scene.game_settings.material_mode = 'GLSL'
 

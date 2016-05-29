@@ -6,6 +6,11 @@ from . import root, camera, material, bone, rigid_body
 from bpy.app.handlers import persistent
 from mmd_tools.core.material import new_mmd_material, new_material_vg, mmd_mat_vg_update
 
+#def _updateGroundShadow(prop, context):
+#    wo = prop.id_data
+#    if wo.mmd_shadow_catcher in bpy.data.objects:
+#        bpy.data.objects[wo.mmd_shadow_catcher].hide_render = not wo.is_mmd_ground_shadow
+
 __properties = {
     bpy.types.Object: {
         'mmd_type': bpy.props.EnumProperty(
@@ -43,7 +48,11 @@ __properties = {
         'mmd_bone': bpy.props.PointerProperty(type=bone.MMDBone),
         'is_mmd_shadow_bone': bpy.props.BoolProperty(name='is_mmd_shadow_bone', default=False),
         'mmd_shadow_bone_type': bpy.props.StringProperty(name='mmd_shadow_bone_type'),
-        }
+        },
+    bpy.types.World: {
+        'mmd_shadow_catcher': bpy.props.StringProperty(name='shadow_catcher'),
+#        'is_mmd_ground_shadow': bpy.props.BoolProperty(name='is_mmd_ground_shadow', default=True, update=_updateGroundShadow),
+        },
     }
 
 

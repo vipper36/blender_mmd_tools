@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from bpy.types import Panel
+import bpy
 
 import mmd_tools.core.model as mmd_model
 
@@ -45,6 +46,16 @@ class MMDModelObjectDisplayPanel(_PanelBase, Panel):
             row = layout.row(align=True)
             row.prop(root.mmd_root, 'use_toon_texture', text='Toon Texture')
             row.prop(root.mmd_root, 'use_sphere_texture', text='Sphere Texture')
+
+class MMDViewPanel(_PanelBase, Panel):
+    bl_idname = 'OBJECT_PT_mmd_tools_view'
+    bl_label = 'MMD View'
+    def draw(self, context):
+        layout = self.layout
+#        layout.prop(context.scene.world, 'is_mmd_ground_shadow', text='Ground Shadow')
+        if context.scene.world.mmd_shadow_catcher in bpy.data.objects:
+            layout.prop(bpy.data.objects[context.scene.world.mmd_shadow_catcher], 'hide_render',
+                        text='Ground Shadow')
 
 
 #class MMDViewPanel(_PanelBase, Panel):
