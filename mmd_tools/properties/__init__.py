@@ -24,6 +24,13 @@ def _updateGroundShadowTransparent(prop, context):
             nodes["Alpha to Color"].inputs[2].default_value = \
               [0x9d / 255, 0x9d / 255, 0x9d / 255, 1.0]
 
+def _updateWireframe(prop, context):
+    ob = prop.id_data
+    ob.modifiers["Shaded Wireframe"].show_viewport = ob.is_mmd_wireframe
+    ob.modifiers["Shaded Wireframe"].show_render = ob.is_mmd_wireframe
+    ob.modifiers["Edge Solidify"].show_viewport = not ob.is_mmd_wireframe
+    ob.modifiers["Edge Solidify"].show_render = not ob.is_mmd_wireframe
+
 __properties = {
     bpy.types.Object: {
         'mmd_type': bpy.props.EnumProperty(
@@ -53,6 +60,7 @@ __properties = {
         'mmd_joint': bpy.props.PointerProperty(type=rigid_body.MMDJoint),
         'is_mmd_lamp': bpy.props.BoolProperty(name='is_mmd_lamp', default=False),
         'is_mmd_glsl_light': bpy.props.BoolProperty(name='is_mmd_glsl_light', default=False),
+        'is_mmd_wireframe': bpy.props.BoolProperty(name='is_mmd_wireframe', default=False, update=_updateWireframe),
         },
     bpy.types.Material: {
         'mmd_material': bpy.props.PointerProperty(type=material.MMDMaterial),

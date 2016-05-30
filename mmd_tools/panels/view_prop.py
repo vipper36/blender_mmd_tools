@@ -42,6 +42,8 @@ class MMDModelObjectDisplayPanel(_PanelBase, Panel):
         c.prop(root.mmd_root, 'show_names_of_rigid_bodies', text='Rigidbody Name')
         c.prop(root.mmd_root, 'show_names_of_joints', text='Joint Name')
 
+        c.prop(obj, 'is_mmd_wireframe', text='Wireframe (Shaded)')
+
         if context.scene.render.engine in {'BLENDER_RENDER', 'BLENDER_GAME'}:
             row = layout.row(align=True)
             row.prop(root.mmd_root, 'use_toon_texture', text='Toon Texture')

@@ -1084,6 +1084,7 @@ def new_material_vg(name, mat, ob):
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
         bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
+        bpy.ops.object.modifier_move_down(modifier='Camera Vtx Init')
 
     if not 'Camera Distance Receiver' in ob.modifiers:
         cam_dist = ob.modifiers.new(name='Camera Distance Receiver', type='VERTEX_WEIGHT_PROXIMITY')
@@ -1097,6 +1098,7 @@ def new_material_vg(name, mat, ob):
         if bpy.context.scene.objects.active != ob:
             bpy.context.scene.objects.active = ob
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Receiver')
@@ -1118,6 +1120,7 @@ def new_material_vg(name, mat, ob):
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
         bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
+        bpy.ops.object.modifier_move_down(modifier='Camera Distance Mixer')
 
     edge_mod = None
     if not 'Edge Solidify' in ob.modifiers:
@@ -1136,6 +1139,23 @@ def new_material_vg(name, mat, ob):
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
         bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
+        bpy.ops.object.modifier_move_down(modifier='Edge Solidify')
+
+    if not 'Shaded Wireframe' in ob.modifiers:
+        wire_mod = ob.modifiers.new(name='Shaded Wireframe', type='WIREFRAME')
+        wire_mod.vertex_group = cam_vtx.name
+        wire_mod.thickness = 2
+        wire_mod.show_viewport = False
+        wire_mod.show_render = False
+        wire_mod.use_even_offset = False
+    else:
+        if bpy.context.scene.objects.active != ob:
+            bpy.context.scene.objects.active = ob
+        bpy.ops.object.modifier_move_down(modifier='Shaded Wireframe') # XXX: should move to last
+        bpy.ops.object.modifier_move_down(modifier='Shaded Wireframe')
+        bpy.ops.object.modifier_move_down(modifier='Shaded Wireframe')
+        bpy.ops.object.modifier_move_down(modifier='Shaded Wireframe')
+        bpy.ops.object.modifier_move_down(modifier='Shaded Wireframe')
 
     return mat_vtx
 
