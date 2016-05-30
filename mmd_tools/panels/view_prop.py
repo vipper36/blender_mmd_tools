@@ -46,10 +46,10 @@ class MMDModelObjectDisplayPanel(_PanelBase, Panel):
 
         layout.prop(obj, 'mmd_edge_weight', text='Edge Weight')
 
-        if context.scene.render.engine in {'BLENDER_RENDER', 'BLENDER_GAME'}:
-            row = layout.row(align=True)
-            row.prop(root.mmd_root, 'use_toon_texture', text='Toon Texture')
-            row.prop(root.mmd_root, 'use_sphere_texture', text='Sphere Texture')
+#        if context.scene.render.engine in {'BLENDER_RENDER', 'BLENDER_GAME'}:
+#            row = layout.row(align=True)
+#            row.prop(root.mmd_root, 'use_toon_texture', text='Toon Texture')
+#            row.prop(root.mmd_root, 'use_sphere_texture', text='Sphere Texture')
 
 class MMDSetBackgroundToBlack(Operator):
     bl_idname = 'mmd_tools.set_background_to_black'
