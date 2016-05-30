@@ -419,6 +419,19 @@ class FnMaterial(object):
         for i in mmd_mat.vgs:
             bpy.data.objects[i.obj_name].modifiers[i.vgm_name].mask_constant = mmd_mat.edge_weight/100.0
 
+def mmd_light_base_shader_get():
+    mats = bpy.data.materials
+    if "mmd_tools Light Base" in mats:
+        return mats["mmd_tools Light Base"]
+
+    # light color receiver hack!
+    mat = bpy.data.materials.new(name="mmd_tools Light Base")
+    mat.diffuse_shader = 'FRESNEL'
+    mat.diffuse_fresnel = 0.0
+    mat.diffuse_fresnel_factor = 0.0
+    mat.use_shadows = False
+    return mat
+
 def mmd_shader_get():
     groups = bpy.data.node_groups
     if "mmd_tools_shader" in groups:
@@ -430,12 +443,7 @@ def mmd_shader_get():
     mat_ns.use_shadows = False
     mat_ns.use_transparent_shadows = False
 
-    # light color receiver hack!
-    l_mat = bpy.data.materials.new(name="mmd_tools Light Base")
-    l_mat.diffuse_shader = 'FRESNEL'
-    l_mat.diffuse_fresnel = 0.0
-    l_mat.diffuse_fresnel_factor = 0.0
-    l_mat.use_shadows = False
+    l_mat = mmd_light_base_shader_get()
 
     t_mat = bpy.data.materials.new(name="mmd_tools Transparent Override")
     t_mat.use_shadeless = True

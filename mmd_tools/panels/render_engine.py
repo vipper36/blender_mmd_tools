@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import bpy, math
+from mmd_tools.core.material import mmd_light_base_shader_get
 
 class MMDToolsRenderEngine(bpy.types.RenderEngine):
 	bl_idname = 'MMD_TOOLS_ENGINE'
@@ -200,8 +201,6 @@ def mmd_tools_scene_init():
 	active_scene.objects.link(lamp)
 	lamp.hide = True
 
-	bpy.context.scene.world.mmd_primary_lamp = lamp.name
-
 	lamp_tgt = bpy.data.objects.new( "LAMP_Target", None )
 	active_scene.objects.link( lamp_tgt )
 	lamp_tgt.location = (0, 0, 0)
@@ -267,18 +266,44 @@ def mmd_tools_scene_init():
 	nodes["Material"].inputs[3].default_value = [0.0, 0.0, 0.0]
 	nodes["Material"].use_specular = False
 
+	l_mat = mmd_light_base_shader_get()
+	lmn = nodes.new("ShaderNodeExtendedMaterial")
+	lmn.name = "Lamp Data"
+	lmn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
+	lmn.inputs[1].default_value = [0.0, 0.0, 0.0, 1.0]
+	lmn.inputs[2].default_value = 1.0
+	lmn.inputs[3].default_value = [0.0, 0.0, 0.0]
+	lmn.inputs[4].default_value = [0.0, 0.0, 0.0, 1.0]
+	lmn.inputs[5].default_value = 1.0
+	lmn.inputs[6].default_value = 0.0
+	lmn.inputs[7].default_value = 1.0
+	lmn.inputs[8].default_value = 0.0
+	lmn.inputs[9].default_value = 1.0
+	lmn.inputs[10].default_value = 0.0
+	lmn.use_diffuse = True
+	lmn.use_specular = False
+	lmn.invert_normal = False
+	lmn.material = l_mat
+
+	cn = nodes.new("ShaderNodeMixRGB")
+	cn.name = "Color"
+	cn.inputs[0].default_value = 1.0
+	cn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
+	shadow_catcher_mat.node_tree.links.new(cn.inputs[2], lmn.outputs[3])
+	cn.blend_type = 'MULTIPLY'
+
 	cmn = nodes.new("ShaderNodeMixRGB")
 	cmn.name = "Alpha to Color"
 	shadow_catcher_mat.node_tree.links.new(cmn.inputs[0], nodes["Material"].outputs[1])
 	cmn.inputs[1].default_value = [1.0, 1.0, 1.0, 1.0]
-	cmn.inputs[2].default_value = [(87 / 255) * (1.0/0.6), (87 / 255) * (1.0/0.6), (87 / 255) * (1.0/0.6), 1.0] # checked
+	shadow_catcher_mat.node_tree.links.new(cmn.inputs[2], cn.outputs[0])
 	cmn.blend_type = 'MULTIPLY'
 	shadow_catcher_mat.node_tree.links.new(nodes["Output"].inputs[0], cmn.outputs[0])
 
 	ianan = nodes.new("ShaderNodeMath")
 	ianan.name = "Alpha to New Alpha"
 	shadow_catcher_mat.node_tree.links.new(ianan.inputs[0], nodes["Material"].outputs[1])
-	ianan.inputs[1].default_value = 0.6
+	ianan.inputs[1].default_value = 0.65
 	ianan.operation = 'MULTIPLY'
 
 	shadow_catcher_mat.node_tree.links.new(nodes["Output"].inputs[1], ianan.outputs[0])

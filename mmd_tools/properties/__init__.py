@@ -11,21 +11,17 @@ from mmd_tools.core.material import new_mmd_material, new_material_vg, mmd_mat_v
 #    if wo.mmd_shadow_catcher in bpy.data.objects:
 #        bpy.data.objects[wo.mmd_shadow_catcher].hide_render = not wo.is_mmd_ground_shadow
 
-# XXX: should update when lamp color was changed
 def _updateGroundShadowTransparent(prop, context):
     wo = prop.id_data
-    if wo.mmd_shadow_catcher in bpy.data.objects and wo.mmd_primary_lamp in bpy.data.objects:
+    if wo.mmd_shadow_catcher in bpy.data.objects:
         nodes = bpy.data.objects[wo.mmd_shadow_catcher].active_material.node_tree.nodes
-        r,g,b = bpy.data.objects[wo.mmd_primary_lamp].data.color
         # XXX: MMD uses (color / 256 * 255)?
-        r,g,b = r*wo.mmd_ground_shadow_compat_color, g*wo.mmd_ground_shadow_compat_color, \
-                b*wo.mmd_ground_shadow_compat_color
         if wo.is_mmd_ground_shadow_transparent:
             nodes["Alpha to New Alpha"].inputs[1].default_value = 0.65
-            nodes["Alpha to Color"].inputs[2].default_value = [r, g, b, 1.0]
+            nodes["Color"].inputs[1].default_value = [wo.mmd_ground_shadow_compat_color]*3 + [1]
         else:
             nodes["Alpha to New Alpha"].inputs[1].default_value = 1.0
-            nodes["Alpha to Color"].inputs[2].default_value = [r, g, b, 1.0]
+            nodes["Color"].inputs[1].default_value = [wo.mmd_ground_shadow_compat_color]*3 + [1]
 
 def _updateGroundShadowCompatColor(prop, context):
     _updateGroundShadowTransparent(prop, context)
@@ -78,7 +74,6 @@ __properties = {
         },
     bpy.types.World: {
         'mmd_shadow_catcher': bpy.props.StringProperty(name='shadow_catcher'),
-        'mmd_primary_lamp': bpy.props.StringProperty(name='mmd_primary_lamp'),
 #        'is_mmd_ground_shadow': bpy.props.BoolProperty(name='is_mmd_ground_shadow', default=True, update=_updateGroundShadow),
         'is_mmd_ground_shadow_transparent': bpy.props.BoolProperty(name='is_mmd_ground_shadow_transparent', default=True, update=_updateGroundShadowTransparent),
         'mmd_ground_shadow_compat_color': bpy.props.FloatProperty(name='mmd_ground_shadow_compat_color', default=1.0, min=0, max=2.0, step=0.1, update=_updateGroundShadowCompatColor),
