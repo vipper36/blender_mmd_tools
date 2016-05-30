@@ -26,6 +26,10 @@ def _updateGroundShadowTransparent(prop, context):
 def _updateGroundShadowCompatColor(prop, context):
     _updateGroundShadowTransparent(prop, context)
 
+def _updateObjectEdgeWeight(prop, context):
+    ob = prop.id_data
+    ob.modifiers["Edge Solidify"].thickness = 2 * 100.0 * ob.mmd_edge_weight
+
 def _updateWireframe(prop, context):
     ob = prop.id_data
     ob.modifiers["Shaded Wireframe"].show_viewport = ob.is_mmd_wireframe
@@ -63,6 +67,7 @@ __properties = {
         'is_mmd_lamp': bpy.props.BoolProperty(name='is_mmd_lamp', default=False),
         'is_mmd_glsl_light': bpy.props.BoolProperty(name='is_mmd_glsl_light', default=False),
         'is_mmd_wireframe': bpy.props.BoolProperty(name='is_mmd_wireframe', default=False, update=_updateWireframe),
+        'mmd_edge_weight': bpy.props.FloatProperty(name='mmd_edge_weight', default=1.0, min=0, max=2.0, step=0.1, update=_updateObjectEdgeWeight),
         },
     bpy.types.Material: {
         'mmd_material': bpy.props.PointerProperty(type=material.MMDMaterial),

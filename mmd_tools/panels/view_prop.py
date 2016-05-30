@@ -44,6 +44,8 @@ class MMDModelObjectDisplayPanel(_PanelBase, Panel):
 
         c.prop(obj, 'is_mmd_wireframe', text='Wireframe (Shaded)')
 
+        layout.prop(obj, 'mmd_edge_weight', text='Edge Weight')
+
         if context.scene.render.engine in {'BLENDER_RENDER', 'BLENDER_GAME'}:
             row = layout.row(align=True)
             row.prop(root.mmd_root, 'use_toon_texture', text='Toon Texture')
