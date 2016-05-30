@@ -200,6 +200,8 @@ def mmd_tools_scene_init():
 	active_scene.objects.link(lamp)
 	lamp.hide = True
 
+	bpy.context.scene.world.mmd_primary_lamp = lamp.name
+
 	lamp_tgt = bpy.data.objects.new( "LAMP_Target", None )
 	active_scene.objects.link( lamp_tgt )
 	lamp_tgt.location = (0, 0, 0)

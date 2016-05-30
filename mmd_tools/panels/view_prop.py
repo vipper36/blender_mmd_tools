@@ -81,6 +81,8 @@ class MMDViewPanel(_PanelBase, Panel):
                         text='Disable')
             layout.prop(context.scene.world, 'is_mmd_ground_shadow_transparent',
                         text='Transparent')
+            layout.prop(context.scene.world, 'mmd_ground_shadow_compat_color',
+                        text='Color')
             layout.label("Self Shadow:")
             layout.prop(context.scene.render, 'use_raytrace',
                         text='Enable')
