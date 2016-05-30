@@ -266,7 +266,9 @@ def mmd_tools_scene_init():
 	nodes["Material"].inputs[3].default_value = [0.0, 0.0, 0.0]
 	nodes["Material"].use_specular = False
 
-	l_mat = mmd_light_base_shader_get()
+	l_mat = mmd_light_base_shader_get().copy()
+	l_mat.name = "mmd_tools Shadow Catcher Light Base"
+	l_mat.light_group = lamp_group
 	lmn = nodes.new("ShaderNodeExtendedMaterial")
 	lmn.name = "Lamp Data"
 	lmn.inputs[0].default_value = [1.0, 1.0, 1.0, 1.0]
